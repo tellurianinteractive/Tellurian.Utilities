@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Tellurian.Utilities.Tests/Tellurian.Utilities.Tests.csproj" />
+  <Project Path="Tellurian.Utilities/Tellurian.Utilities.csproj" />
+</Solution>

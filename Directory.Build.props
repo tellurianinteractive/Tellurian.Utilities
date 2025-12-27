@@ -1,0 +1,37 @@
+<Project>
+	<PropertyGroup>
+		<TargetFrameworks>net10.0</TargetFrameworks>
+		<Product>Tellurian Trains</Product>
+		<Company>Tellurian Interactive</Company>
+		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
+		<Authors>Stefan Fjällemark</Authors>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<NeutralLanguage>en-GB</NeutralLanguage>
+		<Platforms>AnyCPU</Platforms>
+		<ImplicitUsings>true</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<PackageTags>model-trains scheduling timetables FREMO XPLN</PackageTags>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<Description>Import operations for layouts, timetables and schedules.</Description>
+	</PropertyGroup>
+	<PropertyGroup>
+		<RepositoryType>Github</RepositoryType>
+		<RepositoryUrl>https://github.com/tellurianinteractive/Tellurian.Utilities/</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/tellurianinteractive/Tellurian.Trains.Utilities</PackageProjectUrl>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+		<NoWarn>$(NoWarn);MSTEST0001;MSTEST0037</NoWarn>
+	</PropertyGroup>
+</Project>

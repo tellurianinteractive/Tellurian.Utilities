@@ -1,0 +1,8 @@
+﻿<Project Sdk="MSTest.Sdk/4.0.1">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TestingExtensionsProfile>AllMicrosoft</TestingExtensionsProfile>
+  </PropertyGroup>
+
+</Project>

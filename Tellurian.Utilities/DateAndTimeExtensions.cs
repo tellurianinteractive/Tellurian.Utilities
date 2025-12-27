@@ -18,7 +18,7 @@ public static class DateAndTimeExtensions
         /// <remarks>The returned value represents the day of the year, including fractional components
         /// based on the hour and minute. This can be used for calculations that require a continuous representation of
         /// the date and time within the year.</remarks>
-        public double ToDouble => dateTime.DayOfYear + dateTime.Hour / 60 + dateTime.Minute / 3600; // NOTE: Needs tests
+        public double ToDouble => dateTime.DayOfYear + dateTime.Hour / 60.0 + dateTime.Minute / 3600.0;
     }
 
     extension(DateTimeOffset dateTimeOffset)
@@ -42,7 +42,7 @@ public static class DateAndTimeExtensions
         /// <summary>
         /// Gets the value of the represented time interval as a fractional number of days.
         /// </summary>
-        public double ToDouble => timeSpan.TotalDays + timeSpan.Hours / 60 + timeSpan.Minutes / 3600; // NOTE: Needs tests
+        public double ToDouble => timeSpan.TotalDays + timeSpan.Hours / 60.0 + timeSpan.Minutes / 3600.0;
     }
 
     extension(DateOnly date)
@@ -66,7 +66,7 @@ public static class DateAndTimeExtensions
         /// <summary>
         /// Gets the time of day represented by the current instance as a <see cref="TimeOnly"/> value.
         /// </summary>
-        public TimeOnly TimeOnly => new((int)(minutes / 60), (int)(minutes % 60)); // NOTE: Needs tests
+        public TimeOnly TimeOnly => new((int)(minutes / 60), (int)(minutes % 60));
     }
 
 }

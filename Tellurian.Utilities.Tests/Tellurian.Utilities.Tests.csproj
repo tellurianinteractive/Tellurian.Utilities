@@ -5,4 +5,8 @@
     <TestingExtensionsProfile>AllMicrosoft</TestingExtensionsProfile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tellurian.Utilities\Tellurian.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

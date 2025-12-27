@@ -69,7 +69,8 @@ extension(string? value)
 - Builds and runs tests
 
 **Release Pipeline** (`.github/workflows/release.yml`):
-- Triggered manually via workflow dispatch
+- Triggers automatically when `Directory.Build.props` changes on master
+- Can also be triggered manually via workflow dispatch
 - Reads version from `Directory.Build.props`
 - Builds, tests, packs, and publishes to NuGet.org
 - Automatically creates git tag and GitHub Release
@@ -79,4 +80,4 @@ extension(string? value)
 **To release:**
 1. Update `<Version>` in `Directory.Build.props`
 2. Commit and push to master
-3. Go to Actions → Release → Run workflow
+3. Release runs automatically

@@ -2,6 +2,10 @@ name: Release
 
 on:
   workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'Directory.Build.props'
 
 jobs:
   release:

@@ -1,12 +1,12 @@
 <Project>
 	<PropertyGroup>
 		<TargetFrameworks>net10.0</TargetFrameworks>
-		<Product>Tellurian Trains</Product>
+		<Product>Tellurian.Utilities</Product>
 		<Company>Tellurian Interactive</Company>
 		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
 		<Authors>Stefan Fjällemark</Authors>
-		<Version>1.2.1</Version>
-		<AssemblyVersion>1.2.1.0</AssemblyVersion>
+		<Version>1.2.2</Version>
+		<AssemblyVersion>1.2.2.0</AssemblyVersion>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<Platforms>AnyCPU</Platforms>
 		<ImplicitUsings>true</ImplicitUsings>
@@ -15,13 +15,17 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-		<PackageTags>model-trains scheduling timetables FREMO XPLN</PackageTags>
+		<PackageTags>extensions string IDataRecord DataSet Linq</PackageTags>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<Description>Import operations for layouts, timetables and schedules.</Description>
+		<Description>
+			A libtary of extensions that has proved to be useful during some years.
+			Instead of repeating this functionality everywhere, it is now collected
+			in one place.
+		</Description>
 	</PropertyGroup>
 	<PropertyGroup>
 		<RepositoryType>Github</RepositoryType>

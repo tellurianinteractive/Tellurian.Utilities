@@ -6,7 +6,7 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
-Version 1.2.0:
+Version 1.2.1:
 
 Breaking changes:
 - TryGetFirstValue moved from List&lt;T&gt; in Tellurian.Utilities to IEnumerable&lt;T&gt; in Tellurian.Utilities.Linq

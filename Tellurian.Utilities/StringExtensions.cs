@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Tellurian.Utilities;
@@ -16,11 +17,53 @@ public static partial class StringExtensions
         public bool HasValue => !value.IsEmpty;
 
         /// <summary>
+        /// Determines whether the current value matches the specified string, using a case-insensitive comparison.
+        /// </summary>
+        /// <param name="expectedValue">The string to compare with the current value. If <paramref name="expectedValue"/> is <see langword="null"/>,
+        /// the method returns <see langword="false"/>.</param>
+        /// <returns>true if the current value equals <paramref name="expectedValue"/> when compared using ordinal,
+        /// case-insensitive rules; otherwise, false.</returns>
+        public bool Is(string? expectedValue) =>
+                       value is not null && expectedValue is not null &&
+                       value.Equals(expectedValue, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Gets a value indicating whether the current string represents a valid number in either integer or
+        /// floating-point format.
+        /// </summary>
+        /// <remarks>The property returns <see langword="true"/> if the string can be parsed as a 64-bit
+        /// signed integer or a floating-point number using the invariant culture. Otherwise, it returns <see
+        /// langword="false"/>.</remarks>
+        public bool IsNumber =>
+            long.TryParse(value, out var _) ||
+            double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var _);
+
+        /// <summary>
+        /// Gets a value indicating whether the current value is either empty or represents a number.
+        /// </summary>
+        public bool IsNumberOrEmpty => value.IsEmpty || value.IsNumber;
+
+        /// <summary>
+        /// Gets a value indicating whether the current value is either empty or consists only of zero ('0') characters.
+        /// </summary>
+        public bool IsZeroesOrEmpty =>
+                value.IsEmpty || value.All(c => c == '0');
+
+        /// <summary>
         /// Returns the current value if it is not empty; otherwise, returns the specified alternative value.
         /// </summary>
         /// <param name="orElseValue">The value to return if the current value is empty. Can be null or any string.</param>
         /// <returns>The current value if it is not empty; otherwise, the value of <paramref name="orElseValue"/>.</returns>
         public string OrElse(string orElseValue) => value.IsEmpty ? orElseValue : value;
+
+        /// <summary>
+        /// Determines whether all characters in the current value are contained in the specified array of characters.
+        /// </summary>
+        /// <param name="chars">An array of characters to test for inclusion. Each character in the current value is checked against this
+        /// array.</param>
+        /// <returns>true if every character in the current value exists in the chars array; otherwise, false. Returns false if
+        /// the current value is null.</returns>
+        public bool IsAllOf(char[] chars) => value?.All(c => chars.Contains(c)) == true;
 
         /// <summary>
         /// Gets the value of the current string with all HTML tags and non-breaking space entities removed.
@@ -35,7 +78,7 @@ public static partial class StringExtensions
         /// </summary>
         /// <param name="values">An array of strings to compare with the current value. Can be empty.</param>
         /// <returns>true if the current value equals any of the specified strings, ignoring case; otherwise, false.</returns>
-        public bool AnyOf(params string[] values) =>
+        public bool IsAnyOf(params string[] values) =>
             values?.Length > 0 && values.Any(v => v.Equals(value, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
@@ -44,9 +87,9 @@ public static partial class StringExtensions
         /// <param name="commaSeparatedValues">A string containing one or more values separated by commas. Entries are trimmed of whitespace and empty
         /// entries are ignored. Can be null.</param>
         /// <returns>true if at least one of the specified values exists in the collection; otherwise, false.</returns>
-        public bool AnyOf(string? commaSeparatedValues) =>
+        public bool IsAnyOf(string? commaSeparatedValues) =>
             commaSeparatedValues is not null &&
-            value.AnyOf(commaSeparatedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            value.IsAnyOf(commaSeparatedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 
         /// <summary>
         /// Determines whether any of the specified strings occur within the current value, using a case-insensitive
@@ -56,7 +99,7 @@ public static partial class StringExtensions
         /// value is not set, the method returns false.</remarks>
         /// <param name="values">An array of strings to search for within the current value. Cannot be null or empty.</param>
         /// <returns>true if at least one of the specified strings is found within the current value; otherwise, false.</returns>
-        public bool AnyPartOf(params string[] values) =>
+        public bool IsAnyPartOf(params string[] values) =>
             values?.Length > 0 && value.HasValue && values.Any(v => value.Contains(v, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
@@ -67,8 +110,8 @@ public static partial class StringExtensions
         /// <param name="values">A comma-separated list of values to check for presence. Entries are trimmed of whitespace. Can be null or
         /// empty.</param>
         /// <returns>true if at least one of the specified values is present in the current value; otherwise, false.</returns>
-        public bool AnyPartOf(string? values) =>
-           value.AnyPartOf(values?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []);
+        public bool IsAnyPartOf(string? values) =>
+           value.IsAnyPartOf(values?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []);
 
         /// <summary>
         /// Splits the current string value into an array of items using the specified separator character.
@@ -95,6 +138,14 @@ public static partial class StringExtensions
         /// </summary>
         public string OrException =>
             value.HasValue ? value : throw new NullReferenceException(nameof(value));
+
+        /// <summary>
+        /// Gets the value of the string if present; otherwise, returns an empty string.
+        /// </summary>
+        /// <remarks>Use this property to safely retrieve a string value without needing to check for null
+        /// or missing values. This is useful when a non-null string is required for further processing or
+        /// display.</remarks>
+        public string OrEmpty => value.HasValue ? value : string.Empty;
 
         /// <summary>
         /// Returns a substring from the start of the value up to, but not including, the first occurrence of any
@@ -150,6 +201,20 @@ public static partial class StringExtensions
         public string FirstItem(string defaultValue = "") =>
             value.IsEmpty ? defaultValue : value.Split(',')[0] ?? defaultValue;
 
+        /// <summary>
+        /// Gets the integer value represented by the current string, or zero if the string is not a valid integer.
+        /// </summary>
+        public int ToIntOrZero =>
+            int.TryParse(value, out var number) ? number : 0;
+
+        /// <summary>
+        /// Gets the value of the current string as a double-precision floating-point number, or zero if the conversion
+        /// fails.
+        /// </summary>
+        /// <remarks>The conversion uses the invariant culture and accepts standard floating-point formats.
+        /// If the string cannot be parsed as a valid double, the property returns 0.0.</remarks>
+        public double ToDoubleOrZero =>
+                double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) ? number : 0.0;
 
     }
 
@@ -160,6 +225,22 @@ public static partial class StringExtensions
         /// characters.
         /// </summary>
         public bool IsEmpty => string.IsNullOrWhiteSpace(value);
+    }
+
+    extension(IEnumerable<string> values)
+    {
+        /// <summary>
+        /// Gets a value indicating whether all items in the collection are empty.
+        /// </summary>
+        public bool AreAllEmpty =>
+            values.All(i => i.IsEmpty);
+    }
+
+    extension(string? filePath)
+    {
+        public bool HasFileExtension(params string[] extensions) =>
+            filePath is not null &&
+            extensions.Any(e => Path.GetExtension(filePath).Equals(e, StringComparison.OrdinalIgnoreCase));
     }
 }
 

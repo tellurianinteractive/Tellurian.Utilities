@@ -170,53 +170,53 @@ public sealed class StringExtensionsTests
 
     #endregion
 
-    #region AnyOf
+    #region IsAnyOf
 
     [TestMethod]
-    public void AnyOf_MatchFound_ReturnsTrue() =>
-        Assert.IsTrue("test".AnyOf("foo", "test", "bar"));
+    public void IsAnyOf_MatchFound_ReturnsTrue() =>
+        Assert.IsTrue("test".IsAnyOf("foo", "test", "bar"));
 
     [TestMethod]
-    public void AnyOf_CaseInsensitiveMatch_ReturnsTrue() =>
-        Assert.IsTrue("TEST".AnyOf("test"));
+    public void IsAnyOf_CaseInsensitiveMatch_ReturnsTrue() =>
+        Assert.IsTrue("TEST".IsAnyOf("test"));
 
     [TestMethod]
-    public void AnyOf_NoMatch_ReturnsFalse() =>
-        Assert.IsFalse("test".AnyOf("foo", "bar"));
+    public void IsAnyOf_NoMatch_ReturnsFalse() =>
+        Assert.IsFalse("test".IsAnyOf("foo", "bar"));
 
     [TestMethod]
-    public void AnyOf_EmptyArray_ReturnsFalse() =>
-        Assert.IsFalse("test".AnyOf());
+    public void IsAnyOf_EmptyArray_ReturnsFalse() =>
+        Assert.IsFalse("test".IsAnyOf());
 
     [TestMethod]
-    public void AnyOf_CommaSeparated_MatchFound_ReturnsTrue() =>
-        Assert.IsTrue("test".AnyOf("foo, test, bar"));
+    public void IsAnyOf_CommaSeparated_MatchFound_ReturnsTrue() =>
+        Assert.IsTrue("test".IsAnyOf("foo, test, bar"));
 
     [TestMethod]
-    public void AnyOf_CommaSeparated_NullInput_ReturnsFalse() =>
-        Assert.IsFalse("test".AnyOf((string?)null));
+    public void IsAnyOf_CommaSeparated_NullInput_ReturnsFalse() =>
+        Assert.IsFalse("test".IsAnyOf((string?)null));
 
     #endregion
 
-    #region AnyPartOf
+    #region IsAnyPartOf
 
     [TestMethod]
-    public void AnyPartOf_ContainsMatch_ReturnsTrue() =>
-        Assert.IsTrue("hello world".AnyPartOf("wor"));
+    public void IsAnyPartOf_ContainsMatch_ReturnsTrue() =>
+        Assert.IsTrue("hello world".IsAnyPartOf("wor"));
 
     [TestMethod]
-    public void AnyPartOf_CaseInsensitive_ReturnsTrue() =>
-        Assert.IsTrue("Hello World".AnyPartOf("WORLD"));
+    public void IsAnyPartOf_CaseInsensitive_ReturnsTrue() =>
+        Assert.IsTrue("Hello World".IsAnyPartOf("WORLD"));
 
     [TestMethod]
-    public void AnyPartOf_NoMatch_ReturnsFalse() =>
-        Assert.IsFalse("hello".AnyPartOf("xyz"));
+    public void IsAnyPartOf_NoMatch_ReturnsFalse() =>
+        Assert.IsFalse("hello".IsAnyPartOf("xyz"));
 
     [TestMethod]
-    public void AnyPartOf_NullValue_ReturnsFalse()
+    public void IsAnyPartOf_NullValue_ReturnsFalse()
     {
         string? value = null;
-        Assert.IsFalse(value.AnyPartOf("test"));
+        Assert.IsFalse(value.IsAnyPartOf("test"));
     }
 
     #endregion

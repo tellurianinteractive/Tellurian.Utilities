@@ -14,19 +14,33 @@ Namespace `Tellurian.Utilities`
 Extensions on `string?`:
 - `IsEmpty` - Returns true if string is null or whitespace.
 - `HasValue` - Returns true if string contains a non-empty value.
+- `Is(string?)` - Case-insensitive equality comparison (returns false if either is null).
+- `IsNumber` - Returns true if string represents a valid integer or floating-point number.
+- `IsNumberOrEmpty` - Returns true if string is empty or represents a number.
+- `IsZeroesOrEmpty` - Returns true if string is empty or consists only of '0' characters.
 - `OrElse(string)` - Returns the value or an alternative if empty.
 - `OrDefault(string)` - Returns the value or a specified default if empty.
 - `OrException` - Gets the value or throws NullReferenceException.
+- `OrEmpty` - Gets the value or returns empty string if null.
 - `WithHtmlRemoved` - Returns string with all HTML tags and `&nbsp;` removed.
-- `AnyOf(params string[])` - Case-insensitive check if value matches any of the provided strings.
-- `AnyOf(string?)` - Same as above but accepts comma-separated values.
-- `AnyPartOf(params string[])` - Case-insensitive check if any of the provided strings are contained in the value.
-- `AnyPartOf(string?)` - Same as above but accepts comma-separated values.
+- `IsAllOf(char[])` - Returns true if all characters in the string are contained in the specified array.
+- `IsAnyOf(params string[])` - Case-insensitive check if value matches any of the provided strings.
+- `IsAnyOf(string?)` - Same as above but accepts comma-separated values.
+- `IsAnyPartOf(params string[])` - Case-insensitive check if any of the provided strings are contained in the value.
+- `IsAnyPartOf(string?)` - Same as above but accepts comma-separated values.
 - `ToItems(char separator = ';')` - Splits string into trimmed, non-empty items.
 - `UntilOrEmpty(char[])` - Returns substring up to first occurrence of any stop character.
 - `EqualsCaseInsensitive(string?)` - Case-insensitive equality comparison.
 - `AsArray()` - Returns the value as a single-element array, or empty array if null.
 - `FirstItem(string defaultValue = "")` - Returns first item from a comma-separated list.
+- `ToIntOrZero` - Parses string to int, returns 0 if parsing fails.
+- `ToDoubleOrZero` - Parses string to double (invariant culture), returns 0.0 if parsing fails.
+
+Extensions on `IEnumerable<string>`:
+- `AreAllEmpty` - Returns true if all strings in the collection are empty.
+
+Extensions on file path strings:
+- `HasFileExtension(params string[])` - Returns true if file path has one of the specified extensions (case-insensitive).
 
 ## Number Extensions
 Namespace `Tellurian.Utilities`
@@ -112,6 +126,11 @@ Extensions on `IDataRecord`:
 - `GetColumnIndexes(string[])` - Gets dictionary mapping column names to ordinals.
 
 Also includes a `Columns` helper class for efficient column ordinal lookups.
+
+Extensions on `DataRow`:
+- `GetRowFields()` - Returns all field values in the row as a string array.
+- `IsBlankRow()` - Returns true if all fields in the row are empty.
+- `BackgroundColor(int?)` - Gets background color value from a column by index.
 
 ## Markdown Extensions
 Namespace `Tellurian.Utilities.Web`

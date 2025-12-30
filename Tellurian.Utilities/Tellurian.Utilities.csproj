@@ -10,12 +10,14 @@ Version 1.2.0:
 
 Breaking changes:
 - TryGetFirstValue moved from List&lt;T&gt; in Tellurian.Utilities to IEnumerable&lt;T&gt; in Tellurian.Utilities.Linq
+- StringExtensions: AnyOf renamed to IsAnyOf, AnyPartOf renamed to IsAnyPartOf
 
 New features:
 - NumberExtensions: int.IsAlsoOddOrEven(int) for parity checking
 - LinqExtensions: IndexOf(Func&lt;T, bool&gt;) to find index of first matching element
 - DateAndTimeExtensions: TimeSpan.Max(TimeSpan) and TimeSpan.Min(TimeSpan)
-- StringExtensions: AsArray(), FirstItem(string)
+- StringExtensions: Is(string?), IsNumber, IsNumberOrEmpty, IsZeroesOrEmpty, IsAllOf(char[]), OrEmpty, ToIntOrZero, ToDoubleOrZero, AsArray(), FirstItem(string), AreAllEmpty (on IEnumerable&lt;string&gt;), HasFileExtension(params string[])
+- DataSetExtensions: DataRow.GetRowFields(), DataRow.IsBlankRow(), DataRow.BackgroundColor(int?)
 - ObjectExtensions: AsArray(), AsEnumerable()
 - ColorExtensions: IsNotWhiteColor, expanded named color support to 70+ colors
 - MarkupStringExtensions: Span(string) and Div(string) HTML helpers

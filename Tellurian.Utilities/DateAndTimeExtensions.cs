@@ -43,6 +43,21 @@ public static class DateAndTimeExtensions
         /// Gets the value of the represented time interval as a fractional number of days.
         /// </summary>
         public double ToDouble => timeSpan.TotalDays + timeSpan.Hours / 60.0 + timeSpan.Minutes / 3600.0;
+
+        /// <summary>
+        /// Returns the greater of the current TimeSpan value and the specified TimeSpan value.
+        /// </summary>
+        /// <param name="other">The TimeSpan value to compare with the current value.</param>
+        /// <returns>A TimeSpan that is the greater of the current value and the specified value.</returns>
+        public TimeSpan Max(TimeSpan other) => timeSpan > other ? timeSpan : other;
+
+        /// <summary>
+        /// Returns the smaller of the current TimeSpan value and the specified TimeSpan.
+        /// </summary>
+        /// <param name="other">The TimeSpan value to compare with the current instance.</param>
+        /// <returns>A TimeSpan that is the lesser of the current value and <paramref name="other"/>.</returns>
+        public TimeSpan Min(TimeSpan other) => timeSpan < other ? timeSpan : other;
+
     }
 
     extension(DateOnly date)

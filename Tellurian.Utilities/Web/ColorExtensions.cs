@@ -140,6 +140,13 @@ public static partial class ColorExtensions
             color.IsEmpty || color.HexColor.Equals("#FFFFFF", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Gets a value indicating whether the color is not white.
+        /// </summary>
+        public bool IsNotWhiteColor =>
+            !color.IsWhite;
+
+
+        /// <summary>
         /// Gets the hexadecimal color code that corresponds to the current color value.
         /// </summary>
         /// <remarks>If the color is already specified as a hexadecimal code, that value is returned.

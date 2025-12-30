@@ -134,6 +134,22 @@ public static partial class StringExtensions
             (value is null && text is null) ||
             (value is not null && text is not null && value.Equals(text, StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        /// Returns the value as a single-element string array, or an empty array if the value is null.
+        /// </summary>
+        /// <returns>A string array containing the value if it is not null; otherwise, an empty array.</returns>
+        public string[] AsArray() =>
+            value is null ? [] : [value];
+
+        /// <summary>
+        /// Returns the first item from a comma-separated list, or a specified default value if the list is empty.
+        /// </summary>
+        /// <param name="defaultValue">The value to return if the list is empty or the first item is not found. The default is an empty string.</param>
+        /// <returns>The first item in the comma-separated list, or the specified default value if the list is empty or the first
+        /// item is not found.</returns>
+        public string FirstItem(string defaultValue = "") =>
+            value.IsEmpty ? defaultValue : value.Split(',')[0] ?? defaultValue;
+
 
     }
 

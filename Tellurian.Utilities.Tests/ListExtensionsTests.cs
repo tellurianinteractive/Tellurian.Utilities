@@ -1,4 +1,5 @@
 using Tellurian.Utilities;
+using Tellurian.Utilities.Linq;
 
 namespace Tellurian.Utilities.Tests;
 

@@ -6,23 +6,19 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
-Breaking changes:
-- ColorExtensions: IsWhiteColor renamed to IsWhite
-- ColorExtensions: ToHexColor renamed to HexColor
-- ColorExtensions: TextColor return type changed from string? to string
-- ColorExtensions: Default color for unrecognized names changed from #000000 to #FFFFFF
-- ObjectExtensions: IfNotEqualsThrow signature changed to (T other, string parameterName, string? message)
-- StringExtensions: EqualsCaseInsensitive now returns true when both values are null
+Version 1.2.0:
 
-Improvements:
-- ColorExtensions: HexColor and IsWhite are now case-insensitive for color names
-- StringExtensions: WithHtmlRemoved now correctly produces single space for nbsp
+Breaking changes:
+- TryGetFirstValue moved from List&lt;T&gt; in Tellurian.Utilities to IEnumerable&lt;T&gt; in Tellurian.Utilities.Linq
 
 New features:
-- StringExtensions: OrDefault, OrException, UntilOrEmpty, EqualsCaseInsensitive
-- BoolExtensions: IfTrueThrows
-- ObjectExtensions: HasValue, HasValueExcept, ValueOrException, IfNotEqualsThrow
-- ListExtensions: TryGetFirstValue
+- NumberExtensions: int.IsAlsoOddOrEven(int) for parity checking
+- LinqExtensions: IndexOf(Func&lt;T, bool&gt;) to find index of first matching element
+- DateAndTimeExtensions: TimeSpan.Max(TimeSpan) and TimeSpan.Min(TimeSpan)
+- StringExtensions: AsArray(), FirstItem(string)
+- ObjectExtensions: AsArray(), AsEnumerable()
+- ColorExtensions: IsNotWhiteColor, expanded named color support to 70+ colors
+- MarkupStringExtensions: Span(string) and Div(string) HTML helpers
     </PackageReleaseNotes>
   </PropertyGroup>
 

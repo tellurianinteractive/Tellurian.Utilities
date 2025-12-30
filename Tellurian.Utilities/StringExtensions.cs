@@ -27,7 +27,7 @@ public static partial class StringExtensions
         /// </summary>
         public string WithHtmlRemoved =>
             value is null ? string.Empty :
-            Html().Replace(value, string.Empty).Replace("&nbsp", " ").Replace(';', ' ');
+            Html().Replace(value, string.Empty).Replace("&nbsp;", " ").Replace("&nbsp", " ");
 
         /// <summary>
         /// Determines whether the current value matches any of the specified strings, using a case-insensitive
@@ -82,10 +82,68 @@ public static partial class StringExtensions
             value.IsEmpty ? [] :
             value.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
+        /// <summary>
+        /// Returns the current value if it is set; otherwise, returns the specified default value.
+        /// </summary>
+        /// <param name="defaultValue">The value to return if the current value is not set. Can be null.</param>
+        /// <returns>The current value if it is set; otherwise, the specified default value.</returns>
+        public string OrDefault(string defaultValue) =>
+            value.HasValue ? value : defaultValue;
+
+        /// <summary>
+        /// Gets the value if it is present; otherwise, throws a NullReferenceException.
+        /// </summary>
+        public string OrException =>
+            value.HasValue ? value : throw new NullReferenceException(nameof(value));
+
+        /// <summary>
+        /// Returns a substring from the start of the value up to, but not including, the first occurrence of any
+        /// specified stop characters. Returns an empty string if no stop character is found or if the value is null or
+        /// empty.
+        /// </summary>
+        /// <param name="stopAt">An array of characters at which to stop extracting the substring. If empty, the method returns an empty
+        /// string.</param>
+        /// <returns>A substring from the start of the value up to the first occurrence of any character in <paramref
+        /// name="stopAt"/>. Returns the entire value if no stop character is found. Returns an empty string if the
+        /// value is null or empty, or if <paramref name="stopAt"/> is empty.</returns>
+        public string UntilOrEmpty(char[] stopAt)
+        {
+            if (stopAt.Length > 0 && value.HasValue)
+            {
+                int endIndex = value.IndexOfAny(stopAt);
+                if (endIndex > 0)
+                {
+                    return value[..endIndex];
+                }
+                else if (endIndex == -1)
+                {
+                    return value;
+                }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Determines whether the specified string is equal to the current value, using a case-insensitive ordinal
+        /// comparison.
+        /// </summary>
+        /// <param name="text">The string to compare with the current value. Can be null.</param>
+        /// <returns>true if the specified string and the current value are equal, ignoring case; otherwise, false.
+        /// Returns true if both values are null.</returns>
+        public bool EqualsCaseInsensitive(string? text) =>
+            (value is null && text is null) ||
+            (value is not null && text is not null && value.Equals(text, StringComparison.OrdinalIgnoreCase));
+
+
     }
 
     extension([NotNullWhen(false)] string? value)
     {
+        /// <summary>
+        /// Gets a value indicating whether the current value is null, empty, or consists only of white-space
+        /// characters.
+        /// </summary>
         public bool IsEmpty => string.IsNullOrWhiteSpace(value);
     }
 }
+

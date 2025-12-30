@@ -5,6 +5,25 @@
 	  <RootNamespace>Tellurian.Utilities</RootNamespace>
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageReleaseNotes>
+Breaking changes:
+- ColorExtensions: IsWhiteColor renamed to IsWhite
+- ColorExtensions: ToHexColor renamed to HexColor
+- ColorExtensions: TextColor return type changed from string? to string
+- ColorExtensions: Default color for unrecognized names changed from #000000 to #FFFFFF
+- ObjectExtensions: IfNotEqualsThrow signature changed to (T other, string parameterName, string? message)
+- StringExtensions: EqualsCaseInsensitive now returns true when both values are null
+
+Improvements:
+- ColorExtensions: HexColor and IsWhite are now case-insensitive for color names
+- StringExtensions: WithHtmlRemoved now correctly produces single space for nbsp
+
+New features:
+- StringExtensions: OrDefault, OrException, UntilOrEmpty, EqualsCaseInsensitive
+- BoolExtensions: IfTrueThrows
+- ObjectExtensions: HasValue, HasValueExcept, ValueOrException, IfNotEqualsThrow
+- ListExtensions: TryGetFirstValue
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="nul" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Tellurian.Utilities\Tellurian.Utilities.csproj" />
   </ItemGroup>
 

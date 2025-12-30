@@ -15,12 +15,39 @@ Extensions on `string?`:
 - `IsEmpty` - Returns true if string is null or whitespace.
 - `HasValue` - Returns true if string contains a non-empty value.
 - `OrElse(string)` - Returns the value or an alternative if empty.
+- `OrDefault(string)` - Returns the value or a specified default if empty.
+- `OrException` - Gets the value or throws NullReferenceException.
 - `WithHtmlRemoved` - Returns string with all HTML tags and `&nbsp;` removed.
 - `AnyOf(params string[])` - Case-insensitive check if value matches any of the provided strings.
 - `AnyOf(string?)` - Same as above but accepts comma-separated values.
 - `AnyPartOf(params string[])` - Case-insensitive check if any of the provided strings are contained in the value.
 - `AnyPartOf(string?)` - Same as above but accepts comma-separated values.
 - `ToItems(char separator = ';')` - Splits string into trimmed, non-empty items.
+- `UntilOrEmpty(char[])` - Returns substring up to first occurrence of any stop character.
+- `EqualsCaseInsensitive(string?)` - Case-insensitive equality comparison.
+
+## Bool Extensions
+Namespace `Tellurian.Utilities`
+
+Extensions on `bool`:
+- `IfTrueThrows(string, string?)` - Throws ArgumentOutOfRangeException if value is true.
+
+## Object Extensions
+Namespace `Tellurian.Utilities`
+
+Extensions on `object?`:
+- `HasValue` - Returns true if object is not null.
+- `HasValueExcept(object)` - Returns true if object is not null and not equal to the specified value.
+
+Extensions on `T?` where T is a class:
+- `ValueOrException(string, string?)` - Returns value or throws ArgumentNullException.
+- `IfNotEqualsThrow(T, string, string?)` - Throws ArgumentOutOfRangeException if value is null or not equal.
+
+## List Extensions
+Namespace `Tellurian.Utilities`
+
+Extensions on `List<T>`:
+- `TryGetFirstValue(Func<T,bool>, out T?)` - Try-get pattern for finding first matching item.
 
 ## Date and Time Extensions
 Namespace `Tellurian.Utilities`
@@ -86,11 +113,11 @@ Extensions on `string?`:
 ## Color Extensions
 Namespace `Tellurian.Utilities.Web`
 
-Extensions on `string?` for handling web colours:
+Extensions on `string?` for handling web colours (color names are case-insensitive):
 - `IsHexColor` - Returns true if string is a valid hex color code (e.g., `#FF00AA`).
 - `TextColor` - Returns contrasting text color (`#000000` or `#FFFFFF`) for readability.
-- `IsWhiteColor` - Returns true if color is white or not set.
-- `ToHexColor` - Converts color name to hex code.
+- `IsWhite` - Returns true if color is white (hex or name) or not set.
+- `HexColor` - Converts color name to hex code (case-insensitive).
 
 ## Http Extensions
 Namespace `Tellurian.Utilities.Web`

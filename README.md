@@ -19,8 +19,8 @@ Extensions on `string?`:
 - `IsNumberOrEmpty` - Returns true if string is empty or represents a number.
 - `IsZeroesOrEmpty` - Returns true if string is empty or consists only of '0' characters.
 - `OrElse(string)` - Returns the value or an alternative if empty.
-- `OrDefault(string)` - Returns the value or a specified default if empty.
 - `OrException` - Gets the value or throws NullReferenceException.
+- `OrExceptionWithMessage(string, string?)` - Gets the value or throws NullReferenceException with parameter name and message.
 - `OrEmpty` - Gets the value or returns empty string if null.
 - `WithHtmlRemoved` - Returns string with all HTML tags and `&nbsp;` removed.
 - `IsAllOf(char[])` - Returns true if all characters in the string are contained in the specified array.

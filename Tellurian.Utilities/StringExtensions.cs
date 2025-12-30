@@ -126,18 +126,22 @@ public static partial class StringExtensions
             value.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
         /// <summary>
-        /// Returns the current value if it is set; otherwise, returns the specified default value.
-        /// </summary>
-        /// <param name="defaultValue">The value to return if the current value is not set. Can be null.</param>
-        /// <returns>The current value if it is set; otherwise, the specified default value.</returns>
-        public string OrDefault(string defaultValue) =>
-            value.HasValue ? value : defaultValue;
-
-        /// <summary>
         /// Gets the value if it is present; otherwise, throws a NullReferenceException.
         /// </summary>
         public string OrException =>
             value.HasValue ? value : throw new NullReferenceException(nameof(value));
+
+        /// <summary>
+        /// Returns the value if it is present; otherwise, throws a NullReferenceException with a specified message.
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter associated with the value being checked. Used in the exception message if the
+        /// value is not present.</param>
+        /// <param name="exceptionMessage">The custom message to include in the exception if the value is not present. Can be null or empty.</param>
+        /// <returns>The value if it is present.</returns>
+        /// <exception cref="NullReferenceException">Thrown if the value is not present. The exception message includes the specified parameter name and message.</exception>
+        public string OrExceptionWithMessage(string parameterName, string? exceptionMessage) =>
+            value.HasValue ? value :
+            throw new NullReferenceException($"{parameterName} {exceptionMessage}");
 
         /// <summary>
         /// Gets the value of the string if present; otherwise, returns an empty string.

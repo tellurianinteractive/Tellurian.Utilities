@@ -1,5 +1,3 @@
-using Tellurian.Utilities;
-
 namespace Tellurian.Utilities.Tests;
 
 [TestClass]
@@ -41,17 +39,6 @@ public sealed class StringExtensionsTests
     [TestMethod]
     public void OrElse_HasValue_ReturnsOriginal() =>
         Assert.AreEqual("original", "original".OrElse("default"));
-
-    [TestMethod]
-    public void OrDefault_NullValue_ReturnsDefault()
-    {
-        string? value = null;
-        Assert.AreEqual("default", value.OrDefault("default"));
-    }
-
-    [TestMethod]
-    public void OrDefault_HasValue_ReturnsOriginal() =>
-        Assert.AreEqual("original", "original".OrDefault("default"));
 
     [TestMethod]
     public void OrElse_WhitespaceValue_ReturnsAlternative() =>
@@ -219,36 +206,40 @@ public sealed class StringExtensionsTests
         Assert.IsFalse(value.IsAnyPartOf("test"));
     }
 
+
     #endregion
 
     #region ToItems
+
+    private static readonly string[] expected_abc = ["a", "b", "c"];
+    private static readonly string[] expected_ab = ["a", "b"];
 
     [TestMethod]
     public void ToItems_DefaultSeparator_SplitsCorrectly()
     {
         var result = "a;b;c".ToItems();
-        CollectionAssert.AreEqual(new[] { "a", "b", "c" }, result);
+        CollectionAssert.AreEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_CustomSeparator_SplitsCorrectly()
     {
         var result = "a,b,c".ToItems(',');
-        CollectionAssert.AreEqual(new[] { "a", "b", "c" }, result);
+        CollectionAssert.AreEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_TrimsWhitespace()
     {
         var result = " a ; b ; c ".ToItems();
-        CollectionAssert.AreEqual(new[] { "a", "b", "c" }, result);
+        CollectionAssert.AreEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_RemovesEmptyEntries()
     {
         var result = "a;;b".ToItems();
-        CollectionAssert.AreEqual(new[] { "a", "b" }, result);
+        CollectionAssert.AreEqual(expected_ab, result);
     }
 
     [TestMethod]

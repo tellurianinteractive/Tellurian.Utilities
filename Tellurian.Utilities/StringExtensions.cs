@@ -73,25 +73,6 @@ public static partial class StringExtensions
             Html().Replace(value, string.Empty).Replace("&nbsp;", " ").Replace("&nbsp", " ");
 
         /// <summary>
-        /// Determines whether the current value matches any of the specified strings, using a case-insensitive
-        /// comparison.
-        /// </summary>
-        /// <param name="values">An array of strings to compare with the current value. Can be empty.</param>
-        /// <returns>true if the current value equals any of the specified strings, ignoring case; otherwise, false.</returns>
-        public bool IsAnyOf(params string[] values) =>
-            values?.Length > 0 && values.Any(v => v.Equals(value, StringComparison.OrdinalIgnoreCase));
-
-        /// <summary>
-        /// Determines whether any of the specified comma-separated values are present in the current collection.
-        /// </summary>
-        /// <param name="commaSeparatedValues">A string containing one or more values separated by commas. Entries are trimmed of whitespace and empty
-        /// entries are ignored. Can be null.</param>
-        /// <returns>true if at least one of the specified values exists in the collection; otherwise, false.</returns>
-        public bool IsAnyOf(string? commaSeparatedValues) =>
-            commaSeparatedValues is not null &&
-            value.IsAnyOf(commaSeparatedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-
-        /// <summary>
         /// Determines whether any of the specified strings occur within the current value, using a case-insensitive
         /// comparison.
         /// </summary>
@@ -246,5 +227,26 @@ public static partial class StringExtensions
             filePath is not null &&
             extensions.Any(e => Path.GetExtension(filePath).Equals(e, StringComparison.OrdinalIgnoreCase));
     }
+
+    /// <summary>
+    /// Determines whether the current value matches any of the specified strings, using a case-insensitive
+    /// comparison.
+    /// </summary>
+    /// <param name="value">The string value to check.</param>
+    /// <param name="values">An array of strings to compare with the current value. Can be empty.</param>
+    /// <returns>true if the current value equals any of the specified strings, ignoring case; otherwise, false.</returns>
+    public static bool IsAnyOf(this string? value, params string[] values) =>
+        values.Length > 0 && values.Any(v => v.Equals(value, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Determines whether any of the specified comma-separated values match the current value.
+    /// </summary>
+    /// <param name="value">The string value to check.</param>
+    /// <param name="commaSeparatedValues">A string containing one or more values separated by commas. Entries are trimmed of whitespace and empty
+    /// entries are ignored. Can be null.</param>
+    /// <returns>true if at least one of the specified values matches the current value; otherwise, false.</returns>
+    public static bool IsAnyOf(this string? value, string? commaSeparatedValues) =>
+        commaSeparatedValues is not null &&
+        value.IsAnyOf(commaSeparatedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 }
 

@@ -6,7 +6,7 @@ When using C# 14 extension members with `params` array parameters, the compiler 
 
 ## Environment
 
-- .NET 10 Preview
+- .NET SDK 10.0.101
 - C# 14 with extension members enabled
 - Nullable reference types enabled
 

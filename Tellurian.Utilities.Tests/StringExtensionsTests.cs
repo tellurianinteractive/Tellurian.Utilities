@@ -50,36 +50,18 @@ public sealed class StringExtensionsTests
 
     [TestMethod]
     public void OrException_HasValue_ReturnsValue() =>
-        Assert.AreEqual("test", "test".OrException);
+        Assert.AreEqual("test", "test".OrException());
 
     [TestMethod]
     public void OrException_NullValue_ThrowsNullReferenceException()
     {
         string? value = null;
-        try
-        {
-            _ = value.OrException;
-            Assert.Fail("Expected NullReferenceException");
-        }
-        catch (NullReferenceException)
-        {
-            // Expected
-        }
+        Assert.Throws<NullReferenceException>(() => value.OrException());
     }
 
     [TestMethod]
-    public void OrException_WhitespaceOnly_ThrowsNullReferenceException()
-    {
-        try
-        {
-            _ = "   ".OrException;
-            Assert.Fail("Expected NullReferenceException");
-        }
-        catch (NullReferenceException)
-        {
-            // Expected
-        }
-    }
+    public void OrException_WhitespaceOnly_ThrowsNullReferenceException() =>
+        Assert.Throws<NullReferenceException>(() => "   ".OrException());
 
     #endregion
 
@@ -272,6 +254,57 @@ public sealed class StringExtensionsTests
         string? value = null;
         Assert.AreEqual(string.Empty, value.WithHtmlRemoved);
     }
+
+    #endregion
+
+    #region WithQuotationMarksRemoved
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_StraightDoubleQuotes_Removed() =>
+        Assert.AreEqual("Hello World", "\"Hello World\"".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_StraightSingleQuotes_Removed() =>
+        Assert.AreEqual("Hello World", "'Hello World'".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_CurlyDoubleQuotes_Removed() =>
+        Assert.AreEqual("Hello World", "\u201CHello World\u201D".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_CurlySingleQuotes_Removed() =>
+        Assert.AreEqual("Hello World", "\u2018Hello World\u2019".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_GermanQuotes_Removed() =>
+        Assert.AreEqual("Hallo Welt", "\u201EHallo Welt\u201C".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_FrenchGuillemets_Removed() =>
+        Assert.AreEqual("Bonjour le monde", "\u00ABBonjour le monde\u00BB".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_SingleGuillemets_Removed() =>
+        Assert.AreEqual("Hej verden", "\u2039Hej verden\u203A".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_MixedQuotes_AllRemoved() =>
+        Assert.AreEqual("She said Hello to him", "She said \u00ABHello\u00BB to 'him'".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_NoQuotes_ReturnsOriginal() =>
+        Assert.AreEqual("Hello World", "Hello World".WithQuotationMarksRemoved);
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_NullValue_ReturnsEmpty()
+    {
+        string? value = null;
+        Assert.AreEqual(string.Empty, value.WithQuotationMarksRemoved);
+    }
+
+    [TestMethod]
+    public void WithQuotationMarksRemoved_EmptyString_ReturnsEmpty() =>
+        Assert.AreEqual(string.Empty, "".WithQuotationMarksRemoved);
 
     #endregion
 }

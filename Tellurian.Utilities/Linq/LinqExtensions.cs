@@ -32,6 +32,17 @@ public static class LinqExtensions
             result = values.FirstOrDefault(item => predicate(item));
             return result is not null;
         }
+    }
+
+    extension<T>([NotNullWhen(false)] IEnumerable<T>? values)
+    {
+        /// <summary>
+        /// Determines whether the collection contains no elements.
+        /// </summary>
+        /// <returns>true if the collection is empty; otherwise, false.</returns>
+        public bool IsEmpty => values.IsNull || !values.Any();
+
+        public bool IsNull => values is null;
 
     }
 }

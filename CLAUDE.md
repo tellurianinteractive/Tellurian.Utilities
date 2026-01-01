@@ -12,11 +12,14 @@ Tellurian.Utilities is a .NET utility library providing extension methods for co
 # Build all projects
 dotnet build
 
-# Run tests
+# Run all tests
 dotnet test
 
+# Run tests in specific project
+dotnet test --project Tellurian.Utilities.Tests
+
 # Run a specific test class
-dotnet test --filter "FullyQualifiedName~DateAndTimeExtensionsTests"
+dotnet test --project Tellurian.Utilities.Tests --filter "FullyQualifiedName~DateAndTimeExtensionsTests"
 
 # Build in Release mode (generates NuGet package)
 dotnet build -c Release
@@ -55,8 +58,19 @@ extension(string? value)
 - **Markdig** - Used for Markdown to HTML conversion in `MarkdownExtensions.cs`
 - **MSTest.Sdk 4.0** - Test framework
 
+## Testing Conventions
+
+Use `Assert.Throws<T>()` for exception testing (MSTest.Sdk 4.0 API):
+
+```csharp
+[TestMethod]
+public void Method_Condition_ThrowsException() =>
+    Assert.Throws<ArgumentException>(() => myObject.Method(invalidValue));
+```
+
 ## Key Patterns
 
+- Prefer collection expressions over `.ToArray()`: `[.. enumerable]` instead of `enumerable.ToArray()`
 - Most utilities are extension properties/methods on common types (string, DateTime, IDataRecord, etc.)
 - Generated regex patterns are used via `[GeneratedRegex]` attribute
 - Nullable annotations are enabled (`<Nullable>enable</Nullable>`)

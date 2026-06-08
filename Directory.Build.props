@@ -5,8 +5,8 @@
 		<Company>Tellurian Interactive</Company>
 		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
 		<Authors>Stefan Fjällemark</Authors>
-		<Version>1.2.4</Version>
-		<AssemblyVersion>1.2.4.0</AssemblyVersion>
+		<Version>1.3.0</Version>
+		<AssemblyVersion>1.3.0.0</AssemblyVersion>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<Platforms>AnyCPU</Platforms>
 		<ImplicitUsings>true</ImplicitUsings>
@@ -15,8 +15,8 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-		<PackageTags>extensions string IDataRecord DataSet Linq</PackageTags>
-		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageTags>extensions string IDataRecord DataSet Linq pagination</PackageTags>
+		<PackageReleaseNotes>Added PaginationExtensions for splitting sequences into pages for printing.</PackageReleaseNotes>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

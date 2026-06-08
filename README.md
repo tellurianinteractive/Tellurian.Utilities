@@ -74,6 +74,15 @@ Extensions on `IEnumerable<T>`:
 - `IndexOf(Func<T, bool>)` - Returns zero-based index of first element matching the predicate, or -1 if not found.
 - `TryGetFirstValue(Func<T,bool>, out T?)` - Try-get pattern for finding first matching item.
 
+## Pagination Extensions
+Namespace `Tellurian.Utilities.Printing`
+
+Extensions on `IEnumerable<T>` for splitting a sequence into pages for printing:
+- `TotalPages(int itemsPerPage)` - Returns the total number of pages needed to display all items, or 0 if the sequence is null or empty.
+- `Page(int itemPerPage, int pageNumber)` - Returns the items on the specified one-based page, or an empty sequence if the page number is out of range.
+- `ItemsPerPage(int itemsPerPage)` - Splits the sequence into pages, each containing at most the specified number of items.
+- `Pages(Func<T,double> height, int maxHeight, Func<T,T,bool>? pagebreak, double initialHeight = 0.0)` - Splits the sequence into pages based on accumulated item height, with an optional rule to force page breaks.
+
 ## Date and Time Extensions
 Namespace `Tellurian.Utilities`
 

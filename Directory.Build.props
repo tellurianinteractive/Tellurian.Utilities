@@ -5,8 +5,8 @@
 		<Company>Tellurian Interactive</Company>
 		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
 		<Authors>Stefan Fjällemark</Authors>
-		<Version>1.3.0</Version>
-		<AssemblyVersion>1.3.0.0</AssemblyVersion>
+		<Version>1.3.1</Version>
+		<AssemblyVersion>1.3.1.0</AssemblyVersion>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<Platforms>AnyCPU</Platforms>
 		<ImplicitUsings>true</ImplicitUsings>
@@ -16,7 +16,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 		<PackageTags>extensions string IDataRecord DataSet Linq pagination</PackageTags>
-		<PackageReleaseNotes>Added PaginationExtensions for splitting sequences into pages for printing.</PackageReleaseNotes>
+		<PackageReleaseNotes>1.3.1: Rewrote PaginationExtensions as classic generic extension methods so they load under the Blazor WebAssembly Mono interpreter; the C# 14 generic extension block threw TypeLoadException at render time there (AOT and server were unaffected).</PackageReleaseNotes>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

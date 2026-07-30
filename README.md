@@ -155,11 +155,12 @@ Extensions on `string?`:
 Namespace `Tellurian.Utilities.Web`
 
 Extensions on `string?` for handling web colours (color names are case-insensitive):
+- `IsDark` - returns true if the color gives good contrast as background to white text.
 - `IsHexColor` - Returns true if string is a valid hex color code (e.g., `#FF00AA`).
-- `TextColor` - Returns contrasting text color (`#000000` or `#FFFFFF`) for readability.
 - `IsWhite` - Returns true if color is white (hex or name) or not set.
 - `IsNotWhiteColor` - Returns true if color is not white.
 - `HexColor` - Converts color name to hex code (case-insensitive). Supports 70+ named colors.
+- `TextColor` - Returns contrasting text color (`#000000` or `#FFFFFF`) for readability.
 
 ## Markup String Extensions
 Namespace `Tellurian.Utilities.Web`

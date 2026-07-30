@@ -6,10 +6,9 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
-Version 1.2.3
-- OrDefault removed. OrElse do the same thing.
-- OrExceptionWithMessage(string, string?) added to provide custom information in exception.
-    </PackageReleaseNotes>
+		  Version 1.3.2
+		  - IsDark added. Returns true if the color gives good contrast as background to white text.
+	  </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

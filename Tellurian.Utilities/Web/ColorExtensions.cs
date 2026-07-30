@@ -119,7 +119,15 @@ public static partial class ColorExtensions
         /// </summary>
         /// <remarks>The returned color is determined based on the brightness of the background color,
         /// ensuring sufficient readability.</remarks>
-        public string TextColor
+        public string TextColor => color.IsDark ? "#FFFFFF" : "#000000";
+
+        /// <summary>
+        /// Determines if a color is dark (suitable for good contrast agains white text)
+        /// </summary>
+        public bool IsDark => color.Yiq < 128;
+
+
+        private int Yiq
         {
             get
             {
@@ -127,8 +135,7 @@ public static partial class ColorExtensions
                 var r = int.Parse(hexColor.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
                 var g = int.Parse(hexColor.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
                 var b = int.Parse(hexColor.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
-                var yiq = (r * 299 + g * 587 + b * 114) / 1000;
-                return yiq >= 128 ? "#000000" : "#FFFFFF";
+                return (r * 299 + g * 587 + b * 114) / 1000;
             }
         }
 

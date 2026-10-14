@@ -8,6 +8,9 @@ public static partial class ColorExtensions
     [GeneratedRegex("^#([A-Fa-f0-9]{6})$")]
     private static partial Regex HexColorPattern();
 
+    // Perceived brightness (0-255) below which a background gets white text.
+    private const int DarkBelowYiq = 170;
+
     private static readonly Dictionary<string, string> ColorNameToHex = new(StringComparer.OrdinalIgnoreCase)
     {
         // Basic colors
@@ -124,7 +127,9 @@ public static partial class ColorExtensions
         /// <summary>
         /// Determines if a color is dark (suitable for good contrast agains white text)
         /// </summary>
-        public bool IsDark => color.Yiq < 128;
+        /// <remarks>The threshold is deliberately above the midpoint of the 0-255 brightness scale, so that
+        /// medium-bright colours such as <c>#FF66CC</c> and mid-grey get white text rather than black.</remarks>
+        public bool IsDark => color.Yiq < DarkBelowYiq;
 
 
         private int Yiq

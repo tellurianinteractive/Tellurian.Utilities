@@ -172,8 +172,16 @@ public sealed class ColorExtensionsTests
         Assert.AreEqual("#000000", "#FFFF00".TextColor);
 
     [TestMethod]
-    public void TextColor_MidGray_ReturnsBlackText() =>
-        Assert.AreEqual("#000000", "#808080".TextColor);
+    public void TextColor_MidGray_ReturnsWhiteText() =>
+        Assert.AreEqual("#FFFFFF", "#808080".TextColor);
+
+    [TestMethod]
+    public void TextColor_MediumPink_ReturnsWhiteText() =>
+        Assert.AreEqual("#FFFFFF", "#FF66CC".TextColor);
+
+    [TestMethod]
+    public void TextColor_Orange_ReturnsBlackText() =>
+        Assert.AreEqual("#000000", "#FFA500".TextColor);
 
     [TestMethod]
     public void TextColor_ColorName_WorksViaHexConversion() =>

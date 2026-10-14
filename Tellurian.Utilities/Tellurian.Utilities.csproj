@@ -6,8 +6,10 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
-		  Version 1.3.2
-		  - IsDark added. Returns true if the color gives good contrast as background to white text.
+		  Version 1.3.3
+		  - White text is now chosen when the colour's brightness is below 170 (on a 0–255 scale), instead of
+		  below 128. 
+		  - Brightness is the same weighted red/green/blue measure as before
 	  </PackageReleaseNotes>
   </PropertyGroup>
 

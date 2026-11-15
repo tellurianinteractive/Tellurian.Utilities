@@ -2,7 +2,7 @@
 
 namespace Tellurian.Utilities.Web;
 
-static class MarkdownExtensions
+public static class MarkdownExtensions
 {
     /// <summary>
     /// Provides a default instance of the Markdown processing pipeline with standard configuration.
@@ -10,7 +10,7 @@ static class MarkdownExtensions
     /// <remarks>Use this pipeline for typical Markdown parsing scenarios where no custom configuration is
     /// required. The default pipeline includes commonly used extensions and settings suitable for general-purpose
     /// Markdown processing.</remarks>
-    public static MarkdownPipeline DefaultPipeline = CreatePipeline();
+    public static readonly MarkdownPipeline DefaultPipeline = CreatePipeline();
 
     private static MarkdownPipeline CreatePipeline()
     {

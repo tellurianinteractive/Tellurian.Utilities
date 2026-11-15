@@ -10,6 +10,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Push the tag and create the GitHub release.
+      id-token: write  # GitHub OIDC token for nuget.org Trusted Publishing.
 
     steps:
       - uses: actions/checkout@v6
@@ -38,15 +41,17 @@ jobs:
       - name: Pack
         run: dotnet pack Tellurian.Utilities/Tellurian.Utilities.csproj --no-build --configuration Release --output ./nupkg
 
-      - name: Validate NuGet API key
-        run: |
-          if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
-            echo "::error::NUGET_API_KEY secret is not set. Go to Settings → Secrets and variables → Actions to add it."
-            exit 1
-          fi
+      # Trusted Publishing: exchanges the OIDC token for an API key valid for one hour; no stored API key.
+      # Requires a Trusted Publishing policy on nuget.org for this repository and release.yml,
+      # and the secret NUGET_USER with the nuget.org profile name (not the email address).
+      - name: NuGet login (OIDC → temporary API key)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
 
       - name: Push to NuGet
-        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create and push tag
         run: |

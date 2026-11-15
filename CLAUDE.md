@@ -89,7 +89,9 @@ public void Method_Condition_ThrowsException() =>
 - Builds, tests, packs, and publishes to NuGet.org
 - Automatically creates git tag and GitHub Release
 
-**Required Secret:** `NUGET_API_KEY` - NuGet.org API key for publishing
+**Publishing uses nuget.org Trusted Publishing** (OIDC, `NuGet/login`); no API key is stored.
+- nuget.org policy: owner `tellurianinteractive`, repository `Tellurian.Utilities`, workflow file `release.yml`.
+- Secret `NUGET_USER`: the nuget.org profile name (not the email address).
 
 **To release:**
 1. Update `<Version>` in `Directory.Build.props`

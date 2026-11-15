@@ -91,7 +91,7 @@ public void Method_Condition_ThrowsException() =>
 
 **Publishing uses nuget.org Trusted Publishing** (OIDC, `NuGet/login`); no API key is stored.
 - nuget.org policy: owner `tellurianinteractive`, repository `Tellurian.Utilities`, workflow file `release.yml`.
-- Secret `NUGET_USER`: the nuget.org profile name (not the email address).
+- The nuget.org profile name `tellurian` is set in `release.yml` (`NuGet/login`, `user`).
 
 **To release:**
 1. Update `<Version>` in `Directory.Build.props`

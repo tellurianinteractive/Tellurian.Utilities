@@ -191,6 +191,9 @@ Extensions on `string?` for handling web colours (color names are case-insensiti
 - `IsKnownColor` - Returns true if the value is a hex color or a known color name.
 - `TryGetHexColor(out string? hexColor)` - Gets the hex code, telling an unknown value apart from white (`HexColor` gives white for both).
 
+Extensions on `IEnumerable<string>` of color names:
+- `ToNamedColors()` - Returns `NamedColor(Name, HexColor)` records, with `TextColor`, in the given order, for example to build a color drop-down or swatches; an unknown name throws `ArgumentException`.
+
 ## Text Extensions
 Namespace `Tellurian.Utilities.Text`
 

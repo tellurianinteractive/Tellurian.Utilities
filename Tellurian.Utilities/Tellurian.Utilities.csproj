@@ -6,6 +6,10 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
+		  Version 2.1.0
+		  - NamedColor(Name, HexColor), with TextColor, and ToNamedColors() on color names: name and hex code in the given
+		  order, for example to build a color drop-down or swatches; an unknown name throws ArgumentException.
+
 		  Version 2.0.0
 		  Breaking changes:
 		  - AsEnumerable() on any class is renamed ToSingleItemEnumerable(). It won over LINQ's AsEnumerable() for every

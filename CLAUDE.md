@@ -37,9 +37,19 @@ dotnet pack
 - `Tellurian.Utilities.Tests/` - MSTest-based unit tests
 
 **Namespaces:**
-- `Tellurian.Utilities` - String and date/time extensions
+- `Tellurian.Utilities` - String, number, object, bool and date/time extensions
 - `Tellurian.Utilities.Data` - IDataRecord extensions for database access
-- `Tellurian.Utilities.Web` - Markdown, color, and HTTP extensions
+- `Tellurian.Utilities.Linq` - LINQ extensions
+- `Tellurian.Utilities.Printing` - Pagination extensions
+- `Tellurian.Utilities.Text` - Corrections of typed input: name capitalization (`NameStyle`), ordinary text, email and MAC addresses, number ranges
+- `Tellurian.Utilities.Web` - Markdown, color, markup and HTTP extensions
+
+Keep `README.md` in step with every public member: it is the package's documentation on nuget.org.
+
+Extensions must not be needed inside EF Core queries: extension properties can't appear in expression trees (CS9296), and
+extension methods aren't translated. Avoid names that compete with LINQ or the BCL (`AsEnumerable()` on any class won over
+LINQ's until 2.0), and with C# 14 extension blocks, use classic static methods for `params` (CS8620) and generic methods that
+must run under Blazor WebAssembly (TypeLoadException).
 
 ## C# Language Features
 

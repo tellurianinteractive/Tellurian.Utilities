@@ -6,9 +6,22 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
-		  Version 1.3.4
-		  - MarkdownExtensions is now public, so HtmlFromMarkdown() and DefaultPipeline can be used. In 1.3.3 and
-		  earlier the class was internal by mistake.
+		  Version 2.0.0
+		  Breaking changes:
+		  - AsEnumerable() on any class is renamed ToSingleItemEnumerable(). It won over LINQ's AsEnumerable() for every
+		  list, collection and query, so list.AsEnumerable() became a sequence holding the list.
+		  - IsAnyOf(string?) and IsAnyPartOf(string?) with comma-separated values are renamed IsAnyOfCommaSeparated and
+		  IsAnyPartOfCommaSeparated: a single string argument silently picked them.
+		  - FirstItem trims the item and skips empty items; HexColor returns capitals and accepts #RGB and hex without #.
+		  New:
+		  - Nullable numbers: IsNullOrZero, IsNullOrZeroOrNegative, OrNullIfZero, OrNullIfZeroOrNegative.
+		  - Strings: OrNullIfEmpty, FirstItem with a separator, HasValueExcept(params string[]) case-insensitive,
+		  WithoutQuotationMarks keeping apostrophes.
+		  - Colors: NormalizedHexColor, IsKnownColor, TryGetHexColor, ContrastingTextColor(threshold).
+		  - Tellurian.Utilities.Text: name capitalization for 17 European countries (AsCapitalizedName, NameStyle),
+		  AsOrdinaryText, AsEmailAddresses, AsMacAddress and IsMacAddress, number ranges (AsNumberRanges,
+		  TryParseNumberRanges, ToCollapsedRanges).
+		  - README: these extensions must not be used inside EF Core queries.
 	  </PackageReleaseNotes>
   </PropertyGroup>
 

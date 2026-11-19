@@ -208,4 +208,51 @@ public sealed class ColorExtensionsTests
         Assert.AreEqual("#FFFFFF", "black".TextColor);
 
     #endregion
+
+    #region Version 2.0
+
+    [TestMethod]
+    [DataRow("#ff8800", "#FF8800")]
+    [DataRow("ff8800", "#FF8800")]
+    [DataRow("#f80", "#FF8800")]
+    [DataRow(" f80 ", "#FF8800")]
+    [DataRow("red", "#FF0000")]
+    [DataRow("DarkBlue", "#00008B")]
+    [DataRow("white", "#FFFFFF")]
+    [DataRow("reddish", null)]
+    [DataRow("#ff88", null)]
+    [DataRow("", null)]
+    [DataRow(null, null)]
+    public void NormalizedHexColor(string? color, string? expected) =>
+        Assert.AreEqual(expected, color.NormalizedHexColor);
+
+    [TestMethod]
+    public void TryGetHexColor_TellsUnknownFromWhite()
+    {
+        Assert.IsTrue("white".TryGetHexColor(out var white));
+        Assert.AreEqual("#FFFFFF", white);
+        Assert.IsFalse("reddish".TryGetHexColor(out _));
+        Assert.AreEqual("#FFFFFF", "reddish".HexColor, "HexColor still gives white for an unknown name.");
+    }
+
+    [TestMethod]
+    public void IsKnownColor()
+    {
+        Assert.IsTrue("Orange".IsKnownColor);
+        Assert.IsTrue("#f80".IsKnownColor);
+        Assert.IsFalse("reddish".IsKnownColor);
+    }
+
+    [TestMethod]
+    public void HexColor_ShortForm() =>
+        Assert.AreEqual("#FF8800", "#f80".HexColor);
+
+    [TestMethod]
+    public void ContrastingTextColor_WithOwnThreshold()
+    {
+        Assert.AreEqual("#FFFFFF", "#FF8000".TextColor, "Brightness 151 is below the default 170.");
+        Assert.AreEqual("#000000", "#FF8000".ContrastingTextColor(128));
+    }
+
+    #endregion
 }

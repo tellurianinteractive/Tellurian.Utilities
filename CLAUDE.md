@@ -97,3 +97,13 @@ public void Method_Condition_ThrowsException() =>
 1. Update `<Version>` in `Directory.Build.props`
 2. Commit and push to master
 3. Release runs automatically
+
+## Local NuGet Development
+
+This repo produces NuGet packages consumed by other Tellurian projects (such as the Module Registry app). During active development, iterate through the local feed `C:\NuGets` instead of publishing every experimental version to nuget.org.
+
+- Per iteration: bump `<Version>` in `Directory.Build.props` (patch), `dotnet pack -c Release`; `Directory.Build.targets` copies the package to `C:\NuGets`. Do NOT edit the release notes per iteration, and do NOT push a changed `Directory.Build.props` to master: the release workflow publishes on every such push.
+- At publication: consolidate iterations into one `PackageReleaseNotes` entry, decide patch/minor/major, merge to master.
+- CI runners don't have `C:\NuGets`: a consumer pinned to a local-only version cannot ship (NU1101). Intended safety net.
+
+Full workflow: user-level `local-nuget-development` skill.

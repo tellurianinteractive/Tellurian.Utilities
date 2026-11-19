@@ -122,7 +122,44 @@ public static partial class ColorExtensions
         /// </summary>
         /// <remarks>The returned color is determined based on the brightness of the background color,
         /// ensuring sufficient readability.</remarks>
-        public string TextColor => color.IsDark ? "#FFFFFF" : "#000000";
+        public string TextColor => color.ContrastingTextColor(DarkBelowYiq);
+
+        /// <summary>
+        /// Returns a contrasting text color, white (<c>#FFFFFF</c>) or black (<c>#000000</c>), for the color as background, with
+        /// white below the given perceived brightness (0-255; <see cref="TextColor"/> uses 170).
+        /// </summary>
+        public string ContrastingTextColor(int darkBelowBrightness) => color.Yiq < darkBelowBrightness ? "#FFFFFF" : "#000000";
+
+        /// <summary>Determines whether the value is a hex color (<c>#RRGGBB</c>, <c>#RGB</c>, with or without <c>#</c>) or a known color name.</summary>
+        public bool IsKnownColor => color.NormalizedHexColor is not null;
+
+        /// <summary>
+        /// Gets the hex code of a known color name or a hex color, or false for anything else; unlike <see cref="HexColor"/>, an unknown
+        /// value can be told apart from white.
+        /// </summary>
+        public bool TryGetHexColor([NotNullWhen(true)] out string? hexColor)
+        {
+            hexColor = color.NormalizedHexColor;
+            return hexColor is not null;
+        }
+
+        /// <summary>
+        /// Gets the color as <c>#RRGGBB</c> in capitals: a hex color with or without <c>#</c>, in the short form <c>#RGB</c>, or a
+        /// known color name (case-insensitive); null if the value is no color.
+        /// </summary>
+        public string? NormalizedHexColor
+        {
+            get
+            {
+                if (color.IsEmpty) return null;
+                var trimmed = color.Trim();
+                if (ColorNameToHex.TryGetValue(trimmed, out var named)) return named;
+                var digits = trimmed.StartsWith('#') ? trimmed[1..] : trimmed;
+                if (digits.Length is not (3 or 6) || !digits.All(char.IsAsciiHexDigit)) return null;
+                if (digits.Length == 3) digits = string.Concat(digits.Select(d => $"{d}{d}"));
+                return "#" + digits.ToUpperInvariant();
+            }
+        }
 
         /// <summary>
         /// Determines if a color is dark (suitable for good contrast agains white text)
@@ -164,8 +201,6 @@ public static partial class ColorExtensions
         /// <remarks>If the color is already specified as a hexadecimal code, that value is returned.
         /// Otherwise, well-known color names such as "Black" and "White" are mapped (case-insensitively) to their
         /// standard hexadecimal representations. For unrecognized color names, a default value #FFFFFF (white) is returned.</remarks>
-        public string HexColor =>
-            color.IsHexColor ? color :
-            color is not null && ColorNameToHex.TryGetValue(color, out var hex) ? hex : "#FFFFFF";
+        public string HexColor => color.NormalizedHexColor ?? "#FFFFFF";
     }
 }

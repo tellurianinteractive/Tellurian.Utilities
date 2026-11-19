@@ -85,7 +85,7 @@ public static partial class StringExtensions
         /// <param name="values">A comma-separated list of values to check for presence. Entries are trimmed of whitespace. Can be null or
         /// empty.</param>
         /// <returns>true if at least one of the specified values is present in the current value; otherwise, false.</returns>
-        public bool IsAnyPartOf(string? values) =>
+        public bool IsAnyPartOfCommaSeparated(string? values) =>
            value.IsAnyPartOf(values?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []);
 
 
@@ -112,13 +112,14 @@ public static partial class StringExtensions
             value is null ? [] : [value];
 
         /// <summary>
-        /// Returns the first item from a comma-separated list, or a specified default value if the list is empty.
+        /// Returns the first item from a list separated by <paramref name="separator"/> (a comma by default), trimmed, or a specified
+        /// default value if the list is empty.
         /// </summary>
         /// <param name="defaultValue">The value to return if the list is empty or the first item is not found. The default is an empty string.</param>
-        /// <returns>The first item in the comma-separated list, or the specified default value if the list is empty or the first
-        /// item is not found.</returns>
-        public string FirstItem(string defaultValue = "") =>
-            value.IsEmpty ? defaultValue : value.Split(',')[0] ?? defaultValue;
+        /// <param name="separator">The character that separates the items. The default is a comma; <see cref="ToItems"/> uses a semicolon by default.</param>
+        /// <returns>The first item in the list, or the specified default value if the list is empty or the first item is not found.</returns>
+        public string FirstItem(string defaultValue = "", char separator = ',') =>
+            value.ToItems(separator).FirstOrDefault() ?? defaultValue;
 
         /// <summary>
         /// Returns the current value if it is not empty; otherwise, returns the specified alternative value.
@@ -135,6 +136,11 @@ public static partial class StringExtensions
         /// or missing values. This is useful when a non-null string is required for further processing or
         /// display.</remarks>
         public string OrEmpty => value.HasValue ? value : string.Empty;
+
+        /// <summary>
+        /// Gets the value trimmed, or null if it is null, empty or only white-space, as for an optional database column.
+        /// </summary>
+        public string? OrNullIfEmpty => value.IsEmpty ? null : value.Trim();
 
         /// <summary>
         /// Gets the value if it is present; otherwise, throws a NullReferenceException.
@@ -210,6 +216,15 @@ public static partial class StringExtensions
         public string WithQuotationMarksRemoved =>
             value is null ? string.Empty :
             new string([.. value.Where(c => !QuotationMarks.Contains(c))]);
+
+        /// <summary>
+        /// Returns the string without quotation marks, keeping apostrophes (<c>'</c> and <c>’</c>) by default, so names such as
+        /// "O'Brien", "Cortina d'Ampezzo" and "'s-Hertogenbosch" stay intact. <see cref="WithQuotationMarksRemoved"/> removes them too.
+        /// </summary>
+        /// <param name="keepApostrophes">Whether <c>'</c> and <c>’</c> are kept; true by default.</param>
+        public string WithoutQuotationMarks(bool keepApostrophes = true) =>
+            value is null ? string.Empty :
+            new string([.. value.Where(c => !QuotationMarks.Contains(c) || (keepApostrophes && c is '\'' or '\u2019'))]);
     }
 
     extension(string? number)
@@ -295,9 +310,18 @@ public static partial class StringExtensions
     /// <param name="commaSeparatedValues">A string containing one or more values separated by commas. Entries are trimmed of whitespace and empty
     /// entries are ignored. Can be null.</param>
     /// <returns>true if at least one of the specified values matches the current value; otherwise, false.</returns>
-    public static bool IsAnyOf(this string? value, string? commaSeparatedValues) =>
+    public static bool IsAnyOfCommaSeparated(this string? value, string? commaSeparatedValues) =>
         commaSeparatedValues is not null &&
         value.IsAnyOf(commaSeparatedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+
+    /// <summary>
+    /// Determines whether the value is not empty and doesn't match any of the specified strings, using a case-insensitive comparison.
+    /// </summary>
+    /// <param name="value">The string value to check.</param>
+    /// <param name="except">The strings that don't count as a value, such as "n/a" or "NotApplicable".</param>
+    /// <returns>true if the value has a value that is none of <paramref name="except"/>, ignoring case; otherwise, false.</returns>
+    public static bool HasValueExcept(this string? value, params string[] except) =>
+        value.HasValue && !value.IsAnyOf(except);
 
     #endregion
 }

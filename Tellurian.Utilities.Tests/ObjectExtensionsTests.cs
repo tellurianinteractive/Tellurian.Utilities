@@ -211,4 +211,24 @@ public sealed class ObjectExtensionsTests
     {
         public int Value { get; set; }
     }
+
+    #region ToSingleItemEnumerable
+
+    [TestMethod]
+    public void ToSingleItemEnumerable_Value_ReturnsOneItem() =>
+        Assert.AreEqual(1, "text".ToSingleItemEnumerable().Count());
+
+    [TestMethod]
+    public void ToSingleItemEnumerable_Null_ReturnsEmpty() =>
+        Assert.IsEmpty(((string?)null).ToSingleItemEnumerable());
+
+    [TestMethod]
+    public void LinqAsEnumerable_OnAList_IsTheListItself()
+    {
+        List<int> numbers = [1, 2, 3];
+        IEnumerable<int> asEnumerable = numbers.AsEnumerable();
+        Assert.AreEqual(3, asEnumerable.Count(), "Before 2.0, the package's AsEnumerable() won and wrapped the list as one item.");
+    }
+
+    #endregion
 }

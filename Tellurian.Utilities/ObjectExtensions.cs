@@ -52,10 +52,15 @@ public static class ObjectExtensions
         public T[] AsArray() => value is null ? [] : [value];
 
         /// <summary>
-        /// Returns an enumerable collection containing the current value, or an empty collection if the value is null.
+        /// Returns an enumerable collection containing the current value as its single item, or an empty collection if the value is null.
         /// </summary>
+        /// <remarks>
+        /// Named so in version 2.0, instead of <c>AsEnumerable()</c>, which won over LINQ's <c>AsEnumerable()</c> for every list,
+        /// collection and query (the identity conversion to <typeparamref name="T"/> beats the conversion to <c>IEnumerable</c>),
+        /// so <c>list.AsEnumerable()</c> became a sequence holding the list.
+        /// </remarks>
         /// <returns>An <see cref="IEnumerable{T}"/> containing the value if it is not null; otherwise, an empty collection.</returns>
-        public IEnumerable<T> AsEnumerable() => value is null ? [] : [value];
+        public IEnumerable<T> ToSingleItemEnumerable() => value is null ? [] : [value];
 
 
     }

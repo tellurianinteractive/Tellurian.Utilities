@@ -159,11 +159,11 @@ public sealed class StringExtensionsTests
 
     [TestMethod]
     public void IsAnyOf_CommaSeparated_MatchFound_ReturnsTrue() =>
-        Assert.IsTrue("test".IsAnyOf("foo, test, bar"));
+        Assert.IsTrue("test".IsAnyOfCommaSeparated("foo, test, bar"));
 
     [TestMethod]
     public void IsAnyOf_CommaSeparated_NullInput_ReturnsFalse() =>
-        Assert.IsFalse("test".IsAnyOf((string?)null));
+        Assert.IsFalse("test".IsAnyOfCommaSeparated(null));
 
     #endregion
 
@@ -305,6 +305,60 @@ public sealed class StringExtensionsTests
     [TestMethod]
     public void WithQuotationMarksRemoved_EmptyString_ReturnsEmpty() =>
         Assert.AreEqual(string.Empty, "".WithQuotationMarksRemoved);
+
+    #endregion
+
+    #region Version 2.0
+
+    [TestMethod]
+    public void IsAnyOf_SingleValueWithComma_IsOneValue() =>
+        Assert.IsFalse("a".IsAnyOf("a,b"), "A single string is one value; IsAnyOfCommaSeparated splits.");
+
+    [TestMethod]
+    public void IsAnyPartOfCommaSeparated_SplitsOnCommas() =>
+        Assert.IsTrue("hello world".IsAnyPartOfCommaSeparated("xyz, wor"));
+
+    [TestMethod]
+    [DataRow(null, null)]
+    [DataRow("", null)]
+    [DataRow("   ", null)]
+    [DataRow(" text ", "text")]
+    public void OrNullIfEmpty(string? value, string? expected) =>
+        Assert.AreEqual(expected, value.OrNullIfEmpty);
+
+    [TestMethod]
+    [DataRow("a@b.se;c@d.se", ';', "a@b.se")]
+    [DataRow(" a@b.se ; c@d.se", ';', "a@b.se")]
+    [DataRow("sv,en", ',', "sv")]
+    [DataRow("", ';', "default")]
+    public void FirstItem_WithSeparator(string value, char separator, string expected) =>
+        Assert.AreEqual(expected, value.FirstItem("default", separator));
+
+    [TestMethod]
+    public void FirstItem_CommaByDefault() =>
+        Assert.AreEqual("sv", "sv,en".FirstItem());
+
+    [TestMethod]
+    [DataRow("Piece", false)]
+    [DataRow("piece", false)]
+    [DataRow("Wagon", true)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    public void HasValueExcept_Strings_CaseInsensitive(string? value, bool expected) =>
+        Assert.AreEqual(expected, value.HasValueExcept("Piece", "NotApplicable"));
+
+    [TestMethod]
+    [DataRow("O'Brien", "O'Brien")]
+    [DataRow("Cortina d\u2019Ampezzo", "Cortina d\u2019Ampezzo")]
+    [DataRow("'s-Hertogenbosch", "'s-Hertogenbosch")]
+    [DataRow("Karl \"Kalle\" Svensson", "Karl Kalle Svensson")]
+    [DataRow("\u201EZug\u201C \u00ABtrain\u00BB", "Zug train")]
+    public void WithoutQuotationMarks_KeepsApostrophes(string value, string expected) =>
+        Assert.AreEqual(expected, value.WithoutQuotationMarks());
+
+    [TestMethod]
+    public void WithoutQuotationMarks_ApostrophesToo() =>
+        Assert.AreEqual("OBrien", "O'Brien".WithoutQuotationMarks(keepApostrophes: false));
 
     #endregion
 }

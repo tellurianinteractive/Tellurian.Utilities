@@ -198,10 +198,25 @@ Extensions on `IEnumerable<string>` of color names:
 Namespace `Tellurian.Utilities.Text`
 
 Corrections of typed or pasted input, for applying before saving, so users only need to be told about what can't be corrected:
-- `AsCapitalizedName(NameStyle)` - Capitalises a name by kind (`FirstLetter`, `AllWords` for places, `GivenName`,
-  `FamilyName`, `Organisation`), made for names in 17 European countries: connecting words ("Frankfurt am Main"),
-  name particles ("von Sydow"), elisions ("Cortina d'Ampezzo"), Dutch "IJ", "McDonald", legal forms ("GmbH", "Sp. z o.o.").
-  `IsCapitalizedName(NameStyle)` tells whether the correction would change nothing.
+- `Corrected(TextCase, TextCleanup = OrdinaryText)` - One declarative correction per field: the cleanup first, then the casing.
+  `IsCorrected(...)` tells whether the correction would change nothing.
+  ```csharp
+  cargo.Name = cargo.Name.Corrected(TextCase.Sentence);
+  cargo.Note = cargo.Note.Corrected(TextCase.AsTyped, TextCleanup.OrdinaryText | TextCleanup.NullIfEmpty);
+  station.Signature = station.Signature.Corrected(TextCase.UpperCase, TextCleanup.OrdinaryText | TextCleanup.NoSpaces);
+  ```
+  - `TextCase` (one per field): `AsTyped`; `Capitalized` ("CST" → "Cst"); `Sentence` (as `Capitalized`, but abbreviations
+    are kept: "STYCKEGODS" → "Styckegods", "Gas (LPG)", "LPG"); `InitialCapital` (only the first letter, the rest as typed:
+    "Stockholm Södra"); `UpperCase`; `LowerCase`; and the name styles `Place`, `GivenName`, `FamilyName` and `Organisation`,
+    made for names in 17 European countries: connecting words ("Frankfurt am Main"), name particles ("von Sydow"), elisions
+    ("Cortina d'Ampezzo"), Dutch "IJ", "McDonald", legal forms ("GmbH", "Sp. z o.o.").
+  - `TextCleanup` (flags that combine): `Trimmed`, `OrdinaryText` (see `AsOrdinaryText`, includes `Trimmed`), `NoSpaces`,
+    `NoHyphens`, `NullIfEmpty`.
+- `TextCasings` - The `TextCase` per kind of text, for declaring the rules of a language or country in one place:
+  `new TextCasings { ["StationSignature"] = TextCase.UpperCase }.Of("StationSignature")`; an undeclared kind is `AsTyped`
+  (or the given default).
+- `AsCapitalizedName(NameStyle)` and `IsCapitalizedName(NameStyle)` - Obsolete: use `Corrected` (`FirstLetter` is
+  `InitialCapital`, `AllWords` is `Place`).
 - `AsOrdinaryText(bool multiline = false)` - Typographic quotes and dashes, other spaces, separate accent marks,
   zero-width and control characters made plain; trimmed.
 - `AsEmailAddresses()` - Email addresses separated by semicolons, trimmed, in lower case, without duplicates.

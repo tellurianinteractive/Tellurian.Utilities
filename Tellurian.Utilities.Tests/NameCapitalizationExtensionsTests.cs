@@ -30,7 +30,7 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("sÖDER malm", "Söder Malm")]
     [DataRow("Västra GÖTALAND", "Västra GÖTALAND")]
     [DataRow("MEC göteborg", "MEC Göteborg")]
-    public void AllWords(string? name, string? expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.AllWords));
+    public void AllWords(string? name, string? expected) => Assert.AreEqual(expected, name.Corrected(TextCase.Place, TextCleanup.None));
 
     [TestMethod]
     [DataRow("anna", "Anna")]
@@ -41,7 +41,7 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("ijsbrand", "IJsbrand")]
     [DataRow("aNNA", "Anna")]
     [DataRow("KarL-eRik", "Karl-Erik")]
-    public void GivenName(string name, string expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.GivenName));
+    public void GivenName(string name, string expected) => Assert.AreEqual(expected, name.Corrected(TextCase.GivenName, TextCleanup.None));
 
     [TestMethod]
     [DataRow("von sydow", "von Sydow")]
@@ -67,7 +67,7 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("Mackenzie", "Mackenzie")]
     [DataRow("MacKenzie", "MacKenzie")]
     [DataRow("ANDERSSON", "Andersson")]
-    public void FamilyName(string name, string expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.FamilyName));
+    public void FamilyName(string name, string expected) => Assert.AreEqual(expected, name.Corrected(TextCase.FamilyName, TextCleanup.None));
 
     [TestMethod]
     [DataRow("västra götaland", "Västra götaland")]
@@ -76,7 +76,7 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("FF", "FF")]
     [DataRow("ijmuiden", "IJmuiden")]
     [DataRow("Ijmuiden", "IJmuiden")]
-    public void FirstLetter(string name, string expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.FirstLetter));
+    public void InitialCapital(string name, string expected) => Assert.AreEqual(expected, name.Corrected(TextCase.InitialCapital, TextCleanup.None));
 
     /// <summary>Place names from the 17 countries the app is used in (2026-11-19).</summary>
     [TestMethod]
@@ -112,7 +112,7 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("Hallen/Åre", "Hallen/Åre")]
     [DataRow("upplands.väsby", "Upplands.Väsby")]
     [DataRow("s:t eriks", "S:t Eriks")]
-    public void PlaceNamesInTheAppsCountries(string name, string expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.AllWords));
+    public void PlaceNamesInTheAppsCountries(string name, string expected) => Assert.AreEqual(expected, name.Corrected(TextCase.Place, TextCleanup.None));
 
     [TestMethod]
     [DataRow("MEC göteborg", "MEC Göteborg")]
@@ -131,17 +131,17 @@ public sealed class NameCapitalizationExtensionsTests
     [DataRow("SNCF Réseau", "SNCF Réseau")]
     [DataRow("KdMJK göteborg", "KdMJK Göteborg")]
     [DataRow("MjBV", "MjBV")]
-    public void Organisation(string name, string expected) => Assert.AreEqual(expected, name.AsCapitalizedName(NameStyle.Organisation));
+    public void Organisation(string name, string expected) => Assert.AreEqual(expected, name.Corrected(TextCase.Organisation, TextCleanup.None));
 
     [TestMethod]
     public void ValidWhenTheCorrectionChangesNothing()
     {
-        Assert.IsTrue("Halland och Bohuslän".IsCapitalizedName());
-        Assert.IsFalse("VÄSTRA GÖTALAND".IsCapitalizedName());
-        Assert.IsTrue("von Sydow".IsCapitalizedName(NameStyle.FamilyName));
-        Assert.IsFalse("Von Sydow".IsCapitalizedName(NameStyle.FamilyName));
-        Assert.IsTrue("Van Damme".IsCapitalizedName(NameStyle.FamilyName));
-        Assert.IsTrue("van Damme".IsCapitalizedName(NameStyle.FamilyName));
-        Assert.IsTrue(((string?)null).IsCapitalizedName());
+        Assert.IsTrue("Halland och Bohuslän".IsCorrected(TextCase.Place, TextCleanup.None));
+        Assert.IsFalse("VÄSTRA GÖTALAND".IsCorrected(TextCase.Place, TextCleanup.None));
+        Assert.IsTrue("von Sydow".IsCorrected(TextCase.FamilyName, TextCleanup.None));
+        Assert.IsFalse("Von Sydow".IsCorrected(TextCase.FamilyName, TextCleanup.None));
+        Assert.IsTrue("Van Damme".IsCorrected(TextCase.FamilyName, TextCleanup.None));
+        Assert.IsTrue("van Damme".IsCorrected(TextCase.FamilyName, TextCleanup.None));
+        Assert.IsTrue(((string?)null).IsCorrected(TextCase.Place, TextCleanup.None));
     }
 }

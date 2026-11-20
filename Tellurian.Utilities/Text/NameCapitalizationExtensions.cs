@@ -1,6 +1,7 @@
 namespace Tellurian.Utilities.Text;
 
 /// <summary>How a name is capitalised (<see cref="NameCapitalizationExtensions"/>): the kind of name decides.</summary>
+[Obsolete("Use TextCase with Corrected(): FirstLetter is TextCase.InitialCapital and AllWords is TextCase.Place.")]
 public enum NameStyle
 {
     /// <summary>
@@ -27,11 +28,9 @@ public enum NameStyle
 }
 
 /// <summary>
-/// Capitalisation of names, for correcting them before saving instead of refusing them: <see cref="AsCapitalizedName"/> corrects a
-/// name, and <see cref="IsCapitalizedName"/> tells whether the correction would change nothing, for a validation that still needs it.
-/// The kind of name decides the rules (<see cref="NameStyle"/>). A name written in capitals only is first made lower case (except
-/// with <see cref="NameStyle.FirstLetter"/>, where it may be an abbreviation, and short words with
-/// <see cref="NameStyle.Organisation"/>); otherwise first letters change, and capitals inside a word are kept only in a name form,
+/// The casing of texts (<see cref="TextCase"/>), applied through <see cref="TextCasingExtensions.Corrected"/>. For names, a name
+/// written in capitals only is first made lower case (except with <see cref="TextCase.InitialCapital"/>, where it may be an
+/// abbreviation, and short words with <see cref="TextCase.Organisation"/>); otherwise first letters change, and capitals inside a word are kept only in a name form,
 /// such as "McDonald" or "O'Brien": a jumbled word such as "SÖdeR" becomes "Söder". A word in capitals only in a name that
 /// isn't is kept, as an abbreviation. Also: elisions ("Cortina d'Ampezzo", "Pont-l'Évêque", "L'Aquila"), "IJ" in Dutch
 /// ("IJmuiden"), "Mc" and "O'". Made for names in Norway, Sweden, Finland, Denmark, Germany, Poland, the Czech Republic, Slovakia,
@@ -43,50 +42,80 @@ public static partial class NameCapitalizationExtensions
 {
     extension(string? name)
     {
-        public string? AsCapitalizedName(NameStyle style = NameStyle.AllWords)
+        [Obsolete("Use Corrected(TextCase, TextCleanup.None): FirstLetter is TextCase.InitialCapital and AllWords is TextCase.Place.")]
+        public string? AsCapitalizedName(NameStyle style = NameStyle.AllWords) => string.IsNullOrEmpty(name) ? name : Cased(name, style switch
         {
-            if (string.IsNullOrEmpty(name)) return name;
-            if (style == NameStyle.FirstLetter) return WithFirstCapital(name);
-
-            var text = !IsAllUpperCase(name) ? name :
-                style == NameStyle.Organisation ? LongCapitalWord().Replace(name, word => word.Value.ToLowerInvariant()) :
-                name.ToLowerInvariant();
-            var result = new System.Text.StringBuilder(text.Length);
-            var isFirstWord = true;
-            var start = 0;
-            for (var i = 0; i <= text.Length; i++)
-            {
-                if (i < text.Length && text[i] is not (' ' or '-')) continue;
-                if (i > start)
-                {
-                    result.Append(Capitalized(text[start..i], style, isFirstWord));
-                    isFirstWord = false;
-                }
-                if (i < text.Length) result.Append(text[i]);
-                start = i + 1;
-            }
-            return result.ToString();
-        }
+            NameStyle.FirstLetter => TextCase.InitialCapital,
+            NameStyle.GivenName => TextCase.GivenName,
+            NameStyle.FamilyName => TextCase.FamilyName,
+            NameStyle.Organisation => TextCase.Organisation,
+            _ => TextCase.Place,
+        });
 
         /// <summary>True when <see cref="AsCapitalizedName"/> wouldn't change the name; an empty name is valid.</summary>
+        [Obsolete("Use IsCorrected(TextCase, TextCleanup.None).")]
         public bool IsCapitalizedName(NameStyle style = NameStyle.AllWords) => name.AsCapitalizedName(style) == name;
     }
 
-    private static string Capitalized(string word, NameStyle style, bool isFirstWord)
+    /// <summary>The text, not empty, in the casing.</summary>
+    internal static string Cased(string text, TextCase textCase) => textCase switch
     {
-        if (style == NameStyle.Organisation && LegalForms.TryGetValue(word, out var spellings)) return spellings.Contains(word, StringComparer.Ordinal) ? word : spellings[0];
-        if (style == NameStyle.FamilyName && VariableNameParticles.Contains(word)) return word;
+        TextCase.AsTyped => text,
+        TextCase.UpperCase => text.ToUpperInvariant(),
+        TextCase.LowerCase => text.ToLowerInvariant(),
+        TextCase.Capitalized => WithFirstCapital(text.ToLowerInvariant()),
+        TextCase.Sentence => AsSentence(text),
+        TextCase.InitialCapital => WithFirstCapital(text),
+        _ => AsName(text, textCase),
+    };
+
+    /// <summary>
+    /// The first letter a capital and the others lower case, except abbreviations: words in capitals only in a text that isn't, and a
+    /// text in capitals only that is a single word of up to three letters.
+    /// </summary>
+    private static string AsSentence(string text)
+    {
+        if (IsAllUpperCase(text)) return !text.Any(char.IsWhiteSpace) && text.Count(char.IsLetter) <= 3 ? text : WithFirstCapital(text.ToLowerInvariant());
+        return WithFirstCapital(LetterRun().Replace(text, run => run.Value.Count(char.IsLetter) > 1 && !run.Value.Any(char.IsLower) ? run.Value : run.Value.ToLowerInvariant()));
+    }
+
+    private static string AsName(string name, TextCase style)
+    {
+        var text = !IsAllUpperCase(name) ? name :
+            style == TextCase.Organisation ? LongCapitalWord().Replace(name, word => word.Value.ToLowerInvariant()) :
+            name.ToLowerInvariant();
+        var result = new System.Text.StringBuilder(text.Length);
+        var isFirstWord = true;
+        var start = 0;
+        for (var i = 0; i <= text.Length; i++)
+        {
+            if (i < text.Length && text[i] is not (' ' or '-')) continue;
+            if (i > start)
+            {
+                result.Append(Capitalized(text[start..i], style, isFirstWord));
+                isFirstWord = false;
+            }
+            if (i < text.Length) result.Append(text[i]);
+            start = i + 1;
+        }
+        return result.ToString();
+    }
+
+    private static string Capitalized(string word, TextCase style, bool isFirstWord)
+    {
+        if (style == TextCase.Organisation && LegalForms.TryGetValue(word, out var spellings)) return spellings.Contains(word, StringComparer.Ordinal) ? word : spellings[0];
+        if (style == TextCase.FamilyName && VariableNameParticles.Contains(word)) return word;
         var isException = style switch
         {
-            NameStyle.AllWords or NameStyle.Organisation => !isFirstWord && ConnectingWords.Contains(word),
-            NameStyle.FamilyName => NameParticles.Contains(word),
+            TextCase.Place or TextCase.Organisation => !isFirstWord && ConnectingWords.Contains(word),
+            TextCase.FamilyName => NameParticles.Contains(word),
             _ => false,
         };
         if (isException) return word.ToLowerInvariant();
         // Dutch "'s" and "'t" are lower case: "'s-Hertogenbosch", "'t Harde".
         if (word.Length == 2 && word[0] is '\'' or '’' && word[1] is 's' or 'S' or 't' or 'T') return word.ToLowerInvariant();
         // An abbreviation in an organisation's name, such as "KdMJK" or "MjBV", is kept as typed.
-        if (style == NameStyle.Organisation && word.Count(char.IsUpper) >= 2) return word;
+        if (style == TextCase.Organisation && word.Count(char.IsUpper) >= 2) return word;
 
         var apostrophe = word.IndexOfAny(['\'', '’']);
         if (apostrophe > 0 && apostrophe < word.Length - 1)
@@ -97,8 +126,8 @@ public static partial class NameCapitalizationExtensions
             if (Elisions.Contains(prefix))
             {
                 // "d'Artagnan" or "D'Alessandro" as typed; "Cortina d'Ampezzo", but "L'Aquila" as the first word or in a given name.
-                var elision = style == NameStyle.FamilyName ? word[..apostrophe] :
-                    isFirstWord || style == NameStyle.GivenName ? WithFirstCapital(prefix) : prefix;
+                var elision = style == TextCase.FamilyName ? word[..apostrophe] :
+                    isFirstWord || style == TextCase.GivenName ? WithFirstCapital(prefix) : prefix;
                 return elision + word[apostrophe] + rest;
             }
         }
@@ -116,11 +145,17 @@ public static partial class NameCapitalizationExtensions
     [System.Text.RegularExpressions.GeneratedRegex(@"\p{L}[\p{L}'’:]*")]
     private static partial System.Text.RegularExpressions.Regex LetterRun();
 
-    /// <summary>The first letter as a capital, and a Dutch "ij" at the start as "IJ" ("IJmuiden", "IJsselstein").</summary>
+    /// <summary>
+    /// The first letter as a capital, also after a leading quote or digit ("\"Wood\""), and a Dutch "ij" at the start as "IJ"
+    /// ("IJmuiden", "IJsselstein").
+    /// </summary>
     private static string WithFirstCapital(string text)
     {
-        if (text.Length >= 2 && text[0] is 'i' or 'I' && text[1] is 'j' or 'J' && (text.Length == 2 || !char.IsUpper(text[2]))) return "IJ" + text[2..];
-        return char.IsLower(text[0]) ? char.ToUpperInvariant(text[0]) + text[1..] : text;
+        var i = 0;
+        while (i < text.Length && !char.IsLetter(text[i])) i++;
+        if (i == text.Length) return text;
+        if (text.Length - i >= 2 && text[i] is 'i' or 'I' && text[i + 1] is 'j' or 'J' && (text.Length - i == 2 || !char.IsUpper(text[i + 2]))) return text[..i] + "IJ" + text[(i + 2)..];
+        return char.IsLower(text[i]) ? text[..i] + char.ToUpperInvariant(text[i]) + text[(i + 1)..] : text;
     }
 
     /// <summary>

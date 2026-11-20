@@ -6,6 +6,18 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
+		  Version 2.2.0
+		  - Corrected(TextCase, TextCleanup = OrdinaryText): one declarative correction per field, the cleanup first, then the
+		  casing; IsCorrected tells whether it would change nothing.
+		  - TextCase (one per field): AsTyped, Capitalized ("CST" becomes "Cst"), Sentence (as Capitalized, but abbreviations
+		  are kept: "STYCKEGODS" becomes "Styckegods", "Gas (LPG)" and "LPG" stay), InitialCapital (only the first letter),
+		  UpperCase, LowerCase, Place, GivenName, FamilyName and Organisation.
+		  - TextCleanup (flags that combine): Trimmed, OrdinaryText, NoSpaces, NoHyphens, NullIfEmpty.
+		  - TextCasings: the TextCase per kind of text, for declaring the rules of a language or country in one place.
+		  - The first letter is capitalised also after a leading quotation mark or digit.
+		  - Obsolete: AsCapitalizedName and IsCapitalizedName with NameStyle; use Corrected (FirstLetter is InitialCapital,
+		  AllWords is Place).
+
 		  Version 2.1.0
 		  - NamedColor(Name, HexColor), with TextColor, and ToNamedColors() on color names: name and hex code in the given
 		  order, for example to build a color drop-down or swatches; an unknown name throws ArgumentException.

@@ -41,7 +41,7 @@ dotnet pack
 - `Tellurian.Utilities.Data` - IDataRecord extensions for database access
 - `Tellurian.Utilities.Linq` - LINQ extensions
 - `Tellurian.Utilities.Printing` - Pagination extensions
-- `Tellurian.Utilities.Text` - Corrections of typed input: name capitalization (`NameStyle`), ordinary text, email and MAC addresses, number ranges
+- `Tellurian.Utilities.Text` - Corrections of typed input: declarative corrections (`Corrected` with `TextCase` and `TextCleanup`, `TextCasings`), ordinary text, email and MAC addresses, number ranges
 - `Tellurian.Utilities.Web` - Markdown, color, markup and HTTP extensions
 
 Keep `README.md` in step with every public member: it is the package's documentation on nuget.org.

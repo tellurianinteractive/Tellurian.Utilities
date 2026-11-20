@@ -27,7 +27,7 @@ public sealed class TextCasingExtensionsTests
     [DataRow("KOKS", "Koks")]
     [DataRow("gas (LPG)", "Gas (LPG)")]
     [DataRow("stückgut", "Stückgut")]
-    [DataRow("“wood” – logs", "\"Wood\" - logs")]
+    [DataRow("\u201Cwood\u201D \u2013 logs", "\"Wood\" - logs")]
     public void Sentence(string text, string expected) => Assert.AreEqual(expected, text.Corrected(TextCase.Sentence));
 
     [TestMethod]
@@ -64,7 +64,7 @@ public sealed class TextCasingExtensionsTests
         Assert.AreEqual("a  b", "  a  b ".Corrected(TextCase.AsTyped, TextCleanup.Trimmed));
         Assert.AreEqual("AB", " a b ".Corrected(TextCase.UpperCase, TextCleanup.NoSpaces));
         Assert.AreEqual("Hpbg", "h-pbg".Corrected(TextCase.Capitalized, TextCleanup.OrdinaryText | TextCleanup.NoHyphens));
-        Assert.AreEqual("Hpbg", "h – pbg".Corrected(TextCase.Capitalized, TextCleanup.NoSpaces | TextCleanup.NoHyphens));
+        Assert.AreEqual("Hpbg", "h \u2013 pbg".Corrected(TextCase.Capitalized, TextCleanup.NoSpaces | TextCleanup.NoHyphens));
     }
 
     [TestMethod]

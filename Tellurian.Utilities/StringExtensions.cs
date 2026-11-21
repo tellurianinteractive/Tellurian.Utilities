@@ -259,6 +259,55 @@ public static partial class StringExtensions
         /// </summary>
         public int ToIntOrZero =>
             int.TryParse(number, out var value) ? value : 0;
+
+        /// <summary>The <see cref="Guid"/> the text represents, in any format <see cref="Guid.TryParse(string?, out Guid)"/> accepts, or null.</summary>
+        public Guid? ToGuidOrNull => Guid.TryParse(number?.Trim(), out var guid) ? guid : null;
+
+        /// <summary>The <see cref="Guid"/> the text represents, or a new one when it represents none.</summary>
+        public Guid ToGuidOrNew() => number.ToGuidOrNull ?? Guid.NewGuid();
+    }
+
+    extension(string? text)
+    {
+        /// <summary>
+        /// The text with at most <paramref name="maxLength"/> characters; null gives an empty string. With <paramref name="ellipsis"/>,
+        /// a longer text is cut at the last space within the limit (or at the limit when it has none) and ends with "...", which is
+        /// not counted in the limit.
+        /// </summary>
+        public string Truncated(int maxLength, bool ellipsis = false)
+        {
+            if (text is null) return string.Empty;
+            if (maxLength <= 0) return ellipsis && text.Length > 0 ? "..." : string.Empty;
+            if (text.Length <= maxLength) return text;
+            if (!ellipsis) return text[..maxLength];
+            var space = text[..maxLength].LastIndexOf(' ');
+            return $"{text[..(space > 0 ? space : maxLength)]}...";
+        }
+
+        /// <summary>
+        /// The text in lines of at most <paramref name="width"/> characters, broken at the last space within the width (or at the
+        /// width in a word longer than it), joined by <paramref name="lineBreak"/>, such as <c>"&lt;br/&gt;"</c> for HTML. Line breaks
+        /// in the text are kept; null gives an empty string, and a text within the width is returned as it is.
+        /// </summary>
+        public string WordWrapped(int width, string lineBreak = "\n")
+        {
+            if (text is null) return string.Empty;
+            if (width <= 0 || text.Length <= width) return text;
+            var lines = new List<string>();
+            foreach (var paragraph in text.ReplaceLineEndings("\n").Split('\n'))
+            {
+                var rest = paragraph;
+                while (rest.Length > width)
+                {
+                    var cut = rest.LastIndexOf(' ', width);
+                    if (cut <= 0) cut = width;
+                    lines.Add(rest[..cut].TrimEnd());
+                    rest = rest[cut..].TrimStart();
+                }
+                lines.Add(rest);
+            }
+            return string.Join(lineBreak, lines);
+        }
     }
 
     extension(IEnumerable<string> values)

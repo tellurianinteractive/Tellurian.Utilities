@@ -69,4 +69,38 @@ public sealed class DateAndTimeExtensionsTests
 
         Assert.AreEqual(new TimeOnly(23, 59), result);
     }
+
+    [TestMethod]
+    public void ToDateTextAndToDateAndTimeText()
+    {
+        System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+        DateTimeOffset? value = new DateTimeOffset(2026, 11, 21, 14, 5, 0, TimeSpan.Zero);
+        Assert.AreEqual("2026-11-21", value.ToDateText());
+        Assert.AreEqual("2026-11-21 14:05", value.ToDateAndTimeText());
+        Assert.AreEqual(string.Empty, ((DateTimeOffset?)null).ToDateText());
+        Assert.AreEqual(string.Empty, ((DateTimeOffset?)null).ToDateAndTimeText());
+        Assert.AreEqual("2026-11-21", value.Value.ToDateText(), "Not nullable.");
+        Assert.AreEqual("2026-11-21 14:05", value.Value.ToDateAndTimeText(), "Not nullable.");
+    }
+
+    [TestMethod]
+    [DataRow(1950, 1965, "1950 - 1965")]
+    [DataRow(1950, null, "1950 - ")]
+    [DataRow(null, 1965, "- 1965")]
+    [DataRow(null, null, "")]
+    public void ToPeriodTextOfYears(int? from, int? to, string expected)
+    {
+        Assert.AreEqual(expected, (from, to).ToPeriodText());
+        Assert.AreEqual(expected, ((short?)from, (short?)to).ToPeriodText());
+    }
+
+    [TestMethod]
+    public void ToPeriodTextOfDates()
+    {
+        System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("sv-SE");
+        DateTime? from = new DateTime(2026, 5, 1), to = new DateTime(2026, 5, 3);
+        Assert.AreEqual("2026-05-01 - 2026-05-03", (from, to).ToPeriodText());
+        Assert.AreEqual("2026 - ", (from, (DateTime?)null).ToPeriodText("yyyy"));
+        Assert.AreEqual(string.Empty, ((DateTime?)null, (DateTime?)null).ToPeriodText());
+    }
 }

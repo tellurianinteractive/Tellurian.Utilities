@@ -90,4 +90,23 @@ public sealed class TextCasingExtensionsTests
         Assert.AreEqual(TextCase.AsTyped, casings.Of("Other"));
         Assert.AreEqual(TextCase.InitialCapital, casings.Of("Other", TextCase.InitialCapital));
     }
+
+    [TestMethod]
+    [DataRow(null, "")]
+    [DataRow("", "")]
+    [DataRow("redigera modul", "Redigera modul")]
+    [DataRow("\"citat\"", "\"Citat\"")]
+    [DataRow("åäö", "Åäö")]
+    [DataRow("Redan KdMJK", "Redan KdMJK")]
+    public void WithInitialCapital(string? text, string expected) => Assert.AreEqual(expected, text.WithInitialCapital);
+
+    [TestMethod]
+    [DataRow(null, "")]
+    [DataRow("", "")]
+    [DataRow("Modul", "modul")]
+    [DataRow("Ändra", "ändra")]
+    [DataRow("(Station)", "(station)")]
+    [DataRow("FREMO", "fREMO", DisplayName = "Only the first letter")]
+    [DataRow("123", "123")]
+    public void WithInitialLowerCase(string? text, string expected) => Assert.AreEqual(expected, text.WithInitialLowerCase);
 }

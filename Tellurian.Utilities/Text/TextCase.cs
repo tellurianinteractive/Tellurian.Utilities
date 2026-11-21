@@ -101,5 +101,26 @@ public static class TextCasingExtensions
 
         /// <summary>True when <see cref="Corrected"/> wouldn't change the text, for a validation that still needs it.</summary>
         public bool IsCorrected(TextCase textCase, TextCleanup cleanup = TextCleanup.OrdinaryText) => text.Corrected(textCase, cleanup) == text;
+
+        /// <summary>
+        /// The text with its first letter a capital and the rest as typed (as <see cref="TextCase.InitialCapital"/>), for display,
+        /// such as a label first in a sentence; nothing is cleaned up, and null gives an empty string.
+        /// </summary>
+        public string WithInitialCapital => string.IsNullOrEmpty(text) ? string.Empty : NameCapitalizationExtensions.Cased(text, TextCase.InitialCapital);
+
+        /// <summary>
+        /// The text with its first letter in lower case and the rest as typed, for display, such as a label inside a sentence
+        /// ("Edit module"); nothing is cleaned up, and null gives an empty string.
+        /// </summary>
+        public string WithInitialLowerCase
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(text)) return string.Empty;
+                var i = 0;
+                while (i < text.Length && !char.IsLetter(text[i])) i++;
+                return i < text.Length && char.IsUpper(text[i]) ? text[..i] + char.ToLowerInvariant(text[i]) + text[(i + 1)..] : text;
+            }
+        }
     }
 }

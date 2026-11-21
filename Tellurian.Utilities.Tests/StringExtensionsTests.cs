@@ -361,4 +361,61 @@ public sealed class StringExtensionsTests
         Assert.AreEqual("OBrien", "O'Brien".WithoutQuotationMarks(keepApostrophes: false));
 
     #endregion
+
+    #region Truncated
+
+    [TestMethod]
+    [DataRow(null, 5, false, "")]
+    [DataRow("", 5, false, "")]
+    [DataRow("Kort", 5, false, "Kort")]
+    [DataRow("Exakt", 5, false, "Exakt")]
+    [DataRow("Längre text", 5, false, "Längr")]
+    [DataRow("Längre text här", 13, true, "Längre text...")]
+    [DataRow("Ordutanmellanslag", 5, true, "Ordut...")]
+    [DataRow("Kort", 10, true, "Kort")]
+    [DataRow("Text", 0, false, "")]
+    public void Truncated(string? text, int maxLength, bool ellipsis, string expected) =>
+        Assert.AreEqual(expected, text.Truncated(maxLength, ellipsis));
+
+    #endregion
+
+    #region WordWrapped
+
+    [TestMethod]
+    [DataRow(null, 10, "")]
+    [DataRow("Kort text", 10, "Kort text")]
+    [DataRow("Ett två tre fyra", 7, "Ett två|tre|fyra")]
+    [DataRow("Ett två tre fyra", 8, "Ett två|tre fyra")]
+    [DataRow("Långtordutanmellanslag", 10, "Långtordut|anmellansl|ag")]
+    [DataRow("Rad ett som är lång\nKort", 10, "Rad ett|som är|lång|Kort")]
+    public void WordWrapped(string? text, int width, string expected) =>
+        Assert.AreEqual(expected, text.WordWrapped(width, "|"));
+
+    [TestMethod]
+    public void WordWrappedBreaksLinesWithNewLineByDefault() =>
+        Assert.AreEqual("Ett\ntvå", "Ett två".WordWrapped(4));
+
+    #endregion
+
+    #region Guid
+
+    [TestMethod]
+    [DataRow("3F2504E0-4F89-11D3-9A0C-0305E82C3301", true)]
+    [DataRow(" 3f2504e0-4f89-11d3-9a0c-0305e82c3301 ", true)]
+    [DataRow("{3F2504E0-4F89-11D3-9A0C-0305E82C3301}", true)]
+    [DataRow("inte en guid", false)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    public void ToGuidOrNull(string? text, bool expected) =>
+        Assert.AreEqual(expected, text.ToGuidOrNull.HasValue);
+
+    [TestMethod]
+    public void ToGuidOrNewKeepsAGuid() =>
+        Assert.AreEqual(Guid.Parse("3F2504E0-4F89-11D3-9A0C-0305E82C3301"), "3F2504E0-4F89-11D3-9A0C-0305E82C3301".ToGuidOrNew());
+
+    [TestMethod]
+    public void ToGuidOrNewGivesANewGuid() =>
+        Assert.AreNotEqual(Guid.Empty, ((string?)null).ToGuidOrNew());
+
+    #endregion
 }

@@ -6,6 +6,14 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
+		  Version 2.3.0
+		  - IsEmailAddress (one address, the HTML standard's rule) and IsEmailAddresses (addresses separated by semicolons, as
+		  AsEmailAddresses gives them).
+		  - Strings: Truncated(maxLength, ellipsis), WordWrapped(width, lineBreak), ToGuidOrNull and ToGuidOrNew().
+		  - Text for display: WithInitialCapital and WithInitialLowerCase.
+		  - Dates: ToDateText() and ToDateAndTimeText() on DateTimeOffset and DateTimeOffset?, ToPeriodText() on periods of
+		  dates, ints and shorts.
+
 		  Version 2.2.0
 		  - Corrected(TextCase, TextCleanup = OrdinaryText): one declarative correction per field, the cleanup first, then the
 		  casing; IsCorrected tells whether it would change nothing.

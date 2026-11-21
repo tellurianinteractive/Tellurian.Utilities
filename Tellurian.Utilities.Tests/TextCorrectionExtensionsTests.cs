@@ -89,4 +89,37 @@ public sealed class TextCorrectionExtensionsTests
     [DataRow("aa:bb:cc:dd:ee:ff", false)]
     [DataRow("::::::::::::::::0", false)]
     public void IsMacAddress(string text, bool expected) => Assert.AreEqual(expected, text.IsMacAddress);
+
+    [TestMethod]
+    [DataRow("anna@example.se", true)]
+    [DataRow("Anna.Berg+modul@Example.co.uk", true)]
+    [DataRow("a@b", true, DisplayName = "A domain without a dot, as the HTML standard allows")]
+    [DataRow(null, false)]
+    [DataRow("", false)]
+    [DataRow(" anna@example.se", false)]
+    [DataRow("anna", false)]
+    [DataRow("anna@", false)]
+    [DataRow("@example.se", false)]
+    [DataRow("anna@exam_ple.se", false)]
+    [DataRow("anna@-example.se", false)]
+    [DataRow("anna@example..se", false)]
+    [DataRow("anna@example.se;bo@example.se", false)]
+    [DataRow("åsa@example.se", false)]
+    public void IsEmailAddress(string? text, bool expected) => Assert.AreEqual(expected, text.IsEmailAddress);
+
+    [TestMethod]
+    [DataRow("anna@example.se", true)]
+    [DataRow("anna@example.se;bo@example.se", true)]
+    [DataRow(null, false)]
+    [DataRow("", false)]
+    [DataRow("anna@example.se;", false)]
+    [DataRow("anna@example.se, bo@example.se", false, DisplayName = "Not corrected")]
+    [DataRow("anna@example.se;inte en adress", false)]
+    public void IsEmailAddresses(string? text, bool expected) => Assert.AreEqual(expected, text.IsEmailAddresses);
+
+    [TestMethod]
+    [DataRow("Anna@Example.se, anna@example.se", true)]
+    [DataRow("a@b.se\r\nc@d.se", true)]
+    [DataRow("a@b.se;inte en adress", false)]
+    public void IsEmailAddressesWhenCorrected(string text, bool expected) => Assert.AreEqual(expected, text.AsEmailAddresses().IsEmailAddresses);
 }

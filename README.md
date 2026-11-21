@@ -54,6 +54,9 @@ Extensions on `string?`:
 - `FirstItem(string defaultValue = "", char separator = ',')` - Returns the first item, trimmed, of a list separated by commas or the given separator.
 - `ToIntOrZero` - Parses string to int, returns 0 if parsing fails.
 - `ToDoubleOrZero` - Parses string to double (invariant culture), returns 0.0 if parsing fails.
+- `ToGuidOrNull` and `ToGuidOrNew()` - Parses string to `Guid`; null, or a new `Guid`, if parsing fails.
+- `Truncated(int maxLength, bool ellipsis = false)` - At most `maxLength` characters; with `ellipsis`, cut at the last space and ended with "...".
+- `WordWrapped(int width, string lineBreak = "\n")` - Lines of at most `width` characters, broken at spaces, joined by `lineBreak` (such as `"<br/>"`).
 
 Extensions on `IEnumerable<string>`:
 - `AreAllEmpty` - Returns true if all strings in the collection are empty.
@@ -116,9 +119,13 @@ Extensions on `DateTime`:
 - `TimeOnly` - Gets the time component as `TimeOnly`.
 - `ToDouble` - Gets the date/time as a fractional day of year.
 
-Extensions on `DateTimeOffset`:
-- `DateOnly` - Gets the date component as `DateOnly`.
-- `TimeOnly` - Gets the time component as `TimeOnly`.
+Extensions on `DateTimeOffset` and `DateTimeOffset?`:
+- `DateOnly` - Gets the date component as `DateOnly` (not nullable).
+- `TimeOnly` - Gets the time component as `TimeOnly` (not nullable).
+- `ToDateText()` and `ToDateAndTimeText()` - The date ("d"), or date and time ("g"), in the current culture; empty for no value.
+
+Extensions on periods, `(DateTime? from, DateTime? to)`, `(int? from, int? to)` and `(short? from, short? to)`:
+- `ToPeriodText()` - "from - to"; an open end is left out ("1950 - ", "- 1965"), none gives an empty string. Dates take a format, `"d"` by default.
 
 Extensions on `TimeSpan`:
 - `TimeOnly` - Gets the time as `TimeOnly`.
@@ -220,6 +227,9 @@ Corrections of typed or pasted input, for applying before saving, so users only 
 - `AsOrdinaryText(bool multiline = false)` - Typographic quotes and dashes, other spaces, separate accent marks,
   zero-width and control characters made plain; trimmed.
 - `AsEmailAddresses()` - Email addresses separated by semicolons, trimmed, in lower case, without duplicates.
+- `IsEmailAddress` and `IsEmailAddresses` - One email address (the HTML standard's rule), or addresses separated by semicolons
+  as `AsEmailAddresses` gives them; check `text.AsEmailAddresses().IsEmailAddresses` to accept what the correction understands.
+- `WithInitialCapital` and `WithInitialLowerCase` - For display: the first letter a capital, or lower case, the rest as typed.
 - `AsMacAddress()` and `IsMacAddress` - A MAC address in any common notation as `AA:BB:CC:DD:EE:FF`.
 - `AsNumberRanges(int minimum, int maximum)`, `TryParseNumberRanges(...)` and `ToCollapsedRanges()` - Numbers and ranges
   such as `3,10-15`, sorted, without duplicates, consecutive numbers as ranges.

@@ -57,6 +57,19 @@ public static partial class TextCorrectionExtensions
                 .Distinct());
         }
 
+        /// <summary>
+        /// Determines whether the text is one email address: a local part of letters, digits and <c>.!#$%&amp;'*+/=?^_`{|}~-</c>, an
+        /// <c>@</c>, and a domain of labels with letters, digits and hyphens, separated by dots (the HTML standard's rule for an
+        /// email input). Not trimmed: surrounding spaces make it invalid.
+        /// </summary>
+        public bool IsEmailAddress => text.HasValue && EmailAddress().IsMatch(text);
+
+        /// <summary>
+        /// Determines whether the text is one or more email addresses separated by semicolons, as <see cref="AsEmailAddresses"/>
+        /// gives them. To accept what the correction understands, check the corrected text: <c>text.AsEmailAddresses().IsEmailAddresses</c>.
+        /// </summary>
+        public bool IsEmailAddresses => text.HasValue && text.Split(';').All(address => address.IsEmailAddress);
+
         /// <summary>A MAC address in any common notation (<c>AABBCCDDEEFF</c>, with <c>: - .</c> or spaces) as <c>AA:BB:CC:DD:EE:FF</c>.</summary>
         public string? AsMacAddress()
         {
@@ -143,4 +156,7 @@ public static partial class TextCorrectionExtensions
 
     [GeneratedRegex("^([0-9A-F]{2}:){5}[0-9A-F]{2}$")]
     private static partial Regex MacAddress();
+
+    [GeneratedRegex(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")]
+    private static partial Regex EmailAddress();
 }

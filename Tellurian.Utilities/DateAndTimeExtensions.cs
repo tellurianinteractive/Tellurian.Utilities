@@ -1,4 +1,6 @@
-﻿namespace Tellurian.Utilities;
+﻿using System.Globalization;
+
+namespace Tellurian.Utilities;
 
 public static class DateAndTimeExtensions
 {
@@ -31,7 +33,50 @@ public static class DateAndTimeExtensions
         /// Gets the time of day component from the underlying date and time value.
         /// </summary>
         public TimeOnly TimeOnly => TimeOnly.FromDateTime(dateTimeOffset.LocalDateTime);
+
+        /// <summary>The date in the current culture's short date format ("d").</summary>
+        public string ToDateText() => dateTimeOffset.ToString("d", CultureInfo.CurrentCulture);
+
+        /// <summary>The date and time in the current culture's short format ("g").</summary>
+        public string ToDateAndTimeText() => dateTimeOffset.ToString("g", CultureInfo.CurrentCulture);
     }
+
+    extension(DateTimeOffset? dateTimeOffset)
+    {
+        /// <summary>The date in the current culture's short date format ("d"), or an empty string for no value.</summary>
+        public string ToDateText() => dateTimeOffset.HasValue ? dateTimeOffset.Value.ToDateText() : string.Empty;
+
+        /// <summary>The date and time in the current culture's short format ("g"), or an empty string for no value.</summary>
+        public string ToDateAndTimeText() => dateTimeOffset.HasValue ? dateTimeOffset.Value.ToDateAndTimeText() : string.Empty;
+    }
+
+    extension((DateTime? from, DateTime? to) period)
+    {
+        /// <summary>
+        /// The period as "from - to" in <paramref name="format"/> and the current culture; an open end is left out ("from - ",
+        /// "- to"), and no dates give an empty string.
+        /// </summary>
+        public string ToPeriodText(string format = "d") =>
+            PeriodText(period.from?.ToString(format, CultureInfo.CurrentCulture), period.to?.ToString(format, CultureInfo.CurrentCulture));
+    }
+
+    extension((int? from, int? to) period)
+    {
+        /// <summary>A period of numbers, such as years, as "1950 - 1965"; an open end is left out, and none gives an empty string.</summary>
+        public string ToPeriodText() => PeriodText(period.from?.ToString(CultureInfo.InvariantCulture), period.to?.ToString(CultureInfo.InvariantCulture));
+    }
+
+    extension((short? from, short? to) period)
+    {
+        /// <summary>A period of numbers, such as years, as "1950 - 1965"; an open end is left out, and none gives an empty string.</summary>
+        public string ToPeriodText() => PeriodText(period.from?.ToString(CultureInfo.InvariantCulture), period.to?.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private static string PeriodText(string? from, string? to) =>
+        from is null && to is null ? string.Empty :
+        from is null ? $"- {to}" :
+        to is null ? $"{from} - " :
+        $"{from} - {to}";
 
     extension(TimeSpan timeSpan)
     {

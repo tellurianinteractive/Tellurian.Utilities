@@ -1,86 +1,102 @@
-name: Publish
+name: Publish NuGet package
 
-# Publishes to nuget.org when <Version> in Directory.Build.props is a version not yet released (no tag v<Version>).
-# nuget.org Trusted Publishing policy: repository owner tellurianinteractive, repository Tellurian.Utilities, workflow file publish.yml.
-# No API key is stored: NuGet/login exchanges the GitHub OIDC token for a key valid for one hour.
+# Packs Tellurian.Utilities and pushes it to nuget.org, then tags v<Version> and creates the GitHub release.
+# Push to master: publishes when nuget.org has no Tellurian.Utilities with <Version> from Directory.Build.props yet.
+# Manual run: publishes the current version; a version already on nuget.org is skipped.
 
 on:
-  workflow_dispatch:
   push:
     branches: [master]
-    paths:
-      - 'Directory.Build.props'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      contents: write  # Push the tag and create the GitHub release.
-      id-token: write  # GitHub OIDC token for nuget.org Trusted Publishing.
-
+      contents: write # Push the tag and create the GitHub release.
+      id-token: write # OIDC for nuget.org trusted publishing.
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0  # The tags are needed to tell whether the version is released.
 
-      - name: Extract version from Directory.Build.props
+      - name: Decide whether to publish
         id: version
+        env:
+          IS_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          VERSION=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
-          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
-            echo "RELEASED=true" >> $GITHUB_OUTPUT
-            echo "::notice::Version $VERSION is already released (tag v$VERSION); nothing to publish."
+          version=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props | head -1 | tr -d '[:space:]')
+          if [ -z "$version" ]; then echo "::error::No <Version> found in Directory.Build.props"; exit 1; fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          lower=$(echo "$version" | tr '[:upper:]' '[:lower:]')
+          if curl -sf "https://api.nuget.org/v3-flatcontainer/tellurian.utilities/$lower/tellurian.utilities.nuspec" > /dev/null; then
+            if [ "$IS_MANUAL" = "true" ]; then
+              echo "Version $version is on nuget.org; manual run, publishing again (the push skips duplicates)."
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Version $version is already on nuget.org, nothing to publish."
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+            fi
           else
-            echo "RELEASED=false" >> $GITHUB_OUTPUT
+            echo "Version $version is new and will be published."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Setup .NET
-        if: steps.version.outputs.RELEASED == 'false'
-        uses: actions/setup-dotnet@v6
+      - uses: actions/setup-dotnet@v6
+        if: steps.version.outputs.publish == 'true'
         with:
           global-json-file: global.json
 
-      - name: Restore dependencies
-        if: steps.version.outputs.RELEASED == 'false'
-        run: dotnet restore
-
-      - name: Build
-        if: steps.version.outputs.RELEASED == 'false'
-        run: dotnet build --no-restore --configuration Release
-
       - name: Test
-        if: steps.version.outputs.RELEASED == 'false'
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        if: steps.version.outputs.publish == 'true'
+        run: dotnet test --project Tellurian.Utilities.Tests --configuration Release
 
       - name: Pack
-        if: steps.version.outputs.RELEASED == 'false'
-        run: dotnet pack Tellurian.Utilities/Tellurian.Utilities.csproj --no-build --configuration Release --output ./nupkg
+        if: steps.version.outputs.publish == 'true'
+        run: dotnet pack Tellurian.Utilities --configuration Release --output nupkgs
 
-      - name: NuGet login (OIDC → temporary API key)
-        if: steps.version.outputs.RELEASED == 'false'
+      # Trusted publishing policy on nuget.org: owner tellurian, repository tellurianinteractive/Tellurian.Utilities,
+      # workflow publish.yml. The user is the nuget.org profile name, not a secret; the API key lives about an hour.
+      - name: NuGet login
         id: login
+        if: steps.version.outputs.publish == 'true'
         uses: NuGet/login@v1
         with:
-          user: tellurian  # The policy owner's nuget.org profile name (not the email address); it isn't a secret.
+          user: tellurian
 
-      - name: Push to NuGet
-        if: steps.version.outputs.RELEASED == 'false'
-        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Push to nuget.org
+        if: steps.version.outputs.publish == 'true'
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "nupkgs/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
-      - name: Create and push tag
-        if: steps.version.outputs.RELEASED == 'false'
+      - name: Tag and GitHub release
+        if: steps.version.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git tag -a "v${{ steps.version.outputs.VERSION }}" -m "Release v${{ steps.version.outputs.VERSION }}"
-          git push origin "v${{ steps.version.outputs.VERSION }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null; then
+            echo "Tag v$VERSION exists; no new release."
+            exit 0
+          fi
+          awk -v heading="## Release $VERSION" '$0 == heading {found=1; next} found && /^## Release / {exit} found {print}' RELEASENOTES.md > release-notes.md
+          gh release create "v$VERSION" nupkgs/* --target "$GITHUB_SHA" --title "Release $VERSION" --notes-file release-notes.md
 
-      - name: Create GitHub Release
-        if: steps.version.outputs.RELEASED == 'false'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{ steps.version.outputs.VERSION }}
-          files: ./nupkg/*
-          generate_release_notes: true
+      - name: Summary
+        if: steps.version.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "### Published to nuget.org, version $VERSION" >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Tellurian.Utilities](https://www.nuget.org/packages/Tellurian.Utilities/$VERSION)" >> "$GITHUB_STEP_SUMMARY"

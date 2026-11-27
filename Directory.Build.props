@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<AppTargetFramework>net11.0</AppTargetFramework>
 		<PackageTargetFrameworks>net11.0</PackageTargetFrameworks>
-		<Version>2.4.0</Version>
+		<Version>3.0.0</Version>
 	</PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>

@@ -10,6 +10,23 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
+		  Version 3.0.0
+		  Breaking changes:
+		  - ToDouble on DateTime and TimeSpan gives the time of day as a fraction of a day (12:00 is 0.5); GetTimeAsDouble follows.
+		  - OrException() throws InvalidOperationException instead of NullReferenceException.
+		  - GetColumnIndexes returns IReadOnlyDictionary; Columns is sealed; Pages() takes maxHeight as a double.
+		  - GetString on data records gives the default value, when one is given, for a null value.
+		  Fixes:
+		  - Span() and Div() wrap any text, close the div and HTML-encode text and class.
+		  - IndexOfContains no longer overflows the stack; HHMM is HH:mm in every culture.
+		  - TryGetFirstValue tells a match from no match for value types; Pages() adds no empty page.
+		  - Data record getters use the default value for a missing column; pagination checks items per page.
+		  - Generic extensions are classic extension methods, so they load under Blazor WebAssembly.
+		  New:
+		  - ToResultAsync&lt;T&gt;(JsonTypeInfo&lt;T&gt;): source-generated JSON, safe under trimming and Native AOT.
+		  - TextCleanup.PlainCharacters. The package is AOT-compatible and documents every public member.
+		  See RELEASENOTES.md in the repository for details.
+
 		  Version 2.4.0
 		  - Requires .NET 11.
 		  - Result&lt;T&gt;: a C# 15 union of SuccessWithData&lt;T&gt;, SuccessNoData, FailureWithException, FailureWithStatusCode and

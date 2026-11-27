@@ -16,6 +16,12 @@ repeted functionality.
 
 > **Requirements:** .NET 11 from version 2.4.0; version 2.3.0 is the last for .NET 10.
 
+## Breaking changes in 3.0
+- `ToDouble` on `DateTime` and `TimeSpan` gives the time of day as a fraction of a day: 12:00 is 0.5 (it was 0.2).
+- `OrException()` throws `InvalidOperationException` instead of `NullReferenceException`.
+- `GetColumnIndexes` returns `IReadOnlyDictionary<string, int>`, `Columns` is sealed, and `Pages()` takes `maxHeight` as a `double`.
+- `GetString` on data records gives the default value, when one is given, for a null value.
+
 ## Breaking changes in 2.0
 - `AsEnumerable()` on any class is renamed `ToSingleItemEnumerable()`. It won over LINQ's `AsEnumerable()`
   for every list, collection and query, so `list.AsEnumerable()` became a sequence holding the list.

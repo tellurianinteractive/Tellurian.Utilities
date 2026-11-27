@@ -4,7 +4,8 @@
 The release notes are summaries of important changes and fixes in each release. Earlier releases are listed as tags in the
 repository.
 
-## Release (next, not yet released)
+## Release 3.0.0
+Released 2026-11-27
 Breaking changes:
 - `ToDouble` on `DateTime` and `TimeSpan` gives the time of day as a fraction of a day: 12:00 is 0.5, not 0.2. `TimeSpan.ToDouble`
   is `TotalDays`. `GetTimeAsDouble` on data records follows.

@@ -1,11 +1,11 @@
 <Project>
 	<PropertyGroup>
-		<TargetFrameworks>net10.0</TargetFrameworks>
+		<TargetFrameworks>net11.0</TargetFrameworks>
 		<Product>Tellurian.Utilities</Product>
 		<Company>Tellurian Interactive</Company>
 		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
 		<Authors>Stefan Fjällemark</Authors>
-		<Version>2.3.0</Version>
+		<Version>2.4.0</Version>
 		<AssemblyVersion>2.1.0.0</AssemblyVersion>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<Platforms>AnyCPU</Platforms>
@@ -15,7 +15,7 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-		<PackageTags>extensions string number color markdown text-correction name-capitalization IDataRecord DataSet Linq pagination</PackageTags>
+		<PackageTags>extensions result union string number color markdown text-correction name-capitalization IDataRecord DataSet Linq pagination</PackageTags>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -24,7 +24,7 @@
 			A library of extensions that has proved to be useful during some years.
 			Instead of repeating this functionality everywhere, it is now collected
 			in one place: strings, nullable numbers, colors, dates and times, LINQ,
-			pagination, markdown, IDataRecord, and corrections of typed input such as
+			pagination, markdown, results of operations and HTTP requests, IDataRecord, and corrections of typed input such as
 			name capitalization for European countries, ordinary text, email and MAC
 			addresses and number ranges.
 		</Description>

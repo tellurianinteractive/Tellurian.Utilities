@@ -14,6 +14,8 @@ repeted functionality.
 > "could not be translated" in `Where`, `OrderBy`, `Any` and the like; they only work in the final `Select`.
 > Inside queries, use code EF Core translates, such as `string.IsNullOrWhiteSpace`, `ToLower() ==`, `Contains` and `??`.
 
+> **Requirements:** .NET 11 from version 2.4.0; version 2.3.0 is the last for .NET 10.
+
 ## Breaking changes in 2.0
 - `AsEnumerable()` on any class is renamed `ToSingleItemEnumerable()`. It won over LINQ's `AsEnumerable()`
   for every list, collection and query, so `list.AsEnumerable()` became a sequence holding the list.
@@ -94,6 +96,37 @@ Extensions on `T?` where T is a class:
 - `IfNotEqualsThrow(T, string, string?)` - Throws ArgumentOutOfRangeException if value is null or not equal.
 - `AsArray()` - Returns the value as a single-element array, or empty array if null.
 - `ToSingleItemEnumerable()` - Returns the value as a single-element IEnumerable, or empty collection if null.
+
+## Result
+Namespace `Tellurian.Utilities`
+
+`Result<T>` is a C# 15 union type (requires .NET 11) of the outcomes of an operation. It is a class, so it always holds
+one of the cases: there is no empty `default` result, and nullable reference types keep a null result away.
+- `SuccessWithData<T>(T Data)` and `SuccessNoData` - Successes.
+- `FailureWithException(Exception Exception)`, `FailureWithStatusCode(int StatusCode)` and `TimedOut` - Failures.
+
+Each case converts implicitly to `Result<T>`, and a `switch` over the five cases is exhaustive:
+```csharp
+Result<Module> result = new SuccessWithData<Module>(module);
+var text = result switch
+{
+    SuccessWithData<Module> success => success.Data.Name,
+    SuccessNoData => "Saved",
+    FailureWithException failure => failure.Exception.Message,
+    FailureWithStatusCode failure => $"Status {failure.StatusCode}",
+    TimedOut => "Timed out",
+};
+```
+Members of `Result<T>`:
+- `IsSuccess` and `IsFailure` - Timed out counts as a failure.
+- `TryGetData(out T data)` and `DataOrDefault` - The data of a `SuccessWithData<T>`.
+- `GetMessage()` - An extension method giving a short text for every case: "Succeeded.", the exception message,
+  "Failed with status code 404." or "Timed out."
+- `Equals`, `==` and `!=` - Results are equal when they hold equal cases.
+
+Extensions on `Exception`:
+- `AsResult<T>()` - `TimedOut` for a `TimeoutException` and for the `TaskCanceledException` that `HttpClient` throws on its
+  timeout, otherwise `FailureWithException`.
 
 ## LINQ Extensions
 Namespace `Tellurian.Utilities.Linq`
@@ -246,5 +279,15 @@ Namespace `Tellurian.Utilities.Web`
 
 Extensions on `HttpStatusCode`:
 - `IsSuccess` - Returns true if status code is in the 2xx range.
+
+Extensions on `HttpResponseMessage` and `Task<HttpResponseMessage>`, giving a [`Result<T>`](#result):
+- `ToResultAsync<T>(JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)` - For a 2xx status
+  `SuccessWithData<T>` with the JSON body (`JsonSerializerOptions.Web` by default), or `SuccessNoData` when the body is
+  empty or JSON `null`; otherwise `FailureWithStatusCode`. A body that isn't valid JSON gives `FailureWithException`.
+  On a `Task<HttpResponseMessage>` it also awaits the request and disposes the response: a failed request gives
+  `FailureWithException`, and the `HttpClient` timeout `TimedOut`. A cancellation through the token is thrown, not returned.
+```csharp
+var result = await client.GetAsync($"modules/{id}", cancellationToken).ToResultAsync<Module>(cancellationToken: cancellationToken);
+```
 
 

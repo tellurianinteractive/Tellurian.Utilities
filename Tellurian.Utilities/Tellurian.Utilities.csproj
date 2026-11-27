@@ -6,6 +6,14 @@
 	  <Title>$(AssemblyName)</Title>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageReleaseNotes>
+		  Version 2.4.0
+		  - Requires .NET 11.
+		  - Result&lt;T&gt;: a C# 15 union of SuccessWithData&lt;T&gt;, SuccessNoData, FailureWithException, FailureWithStatusCode and
+		  TimedOut, with IsSuccess, IsFailure, TryGetData, DataOrDefault and GetMessage(); AsResult&lt;T&gt;() on exceptions.
+		  - ToResultAsync&lt;T&gt;() on HttpResponseMessage and Task&lt;HttpResponseMessage&gt;: the JSON body, the status code, a failed
+		  request or the HttpClient timeout as a Result&lt;T&gt;.
+		  - Markdig 1.6.0.
+
 		  Version 2.3.0
 		  - IsEmailAddress (one address, the HTML standard's rule) and IsEmailAddresses (addresses separated by semicolons, as
 		  AsEmailAddresses gives them).
@@ -57,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.44.0" />
+    <PackageReference Include="Markdig" Version="1.6.0" />
   </ItemGroup>
 
   <ItemGroup>

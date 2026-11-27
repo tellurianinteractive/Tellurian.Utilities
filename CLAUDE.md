@@ -30,7 +30,7 @@ dotnet pack
 
 ## Architecture
 
-**Target Framework:** .NET 10 (configured in Directory.Build.props)
+**Target Framework:** .NET 11 (C# 15 unions) (configured in Directory.Build.props)
 
 **Project Structure:**
 - `Tellurian.Utilities/` - Main library

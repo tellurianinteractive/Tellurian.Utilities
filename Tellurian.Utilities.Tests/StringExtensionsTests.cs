@@ -3,8 +3,6 @@ namespace Tellurian.Utilities.Tests;
 [TestClass]
 public sealed class StringExtensionsTests
 {
-    #region IsEmpty / HasValue
-
     [TestMethod]
     public void IsEmpty_Null_ReturnsTrue() =>
         Assert.IsTrue(((string?)null).IsEmpty);
@@ -25,10 +23,6 @@ public sealed class StringExtensionsTests
     public void HasValue_WhitespaceOnly_ReturnsFalse() =>
         Assert.IsFalse("   ".HasValue);
 
-    #endregion
-
-    #region OrElse / OrDefault
-
     [TestMethod]
     public void OrElse_NullValue_ReturnsAlternative()
     {
@@ -44,28 +38,20 @@ public sealed class StringExtensionsTests
     public void OrElse_WhitespaceValue_ReturnsAlternative() =>
         Assert.AreEqual("default", "   ".OrElse("default"));
 
-    #endregion
-
-    #region OrException
-
     [TestMethod]
     public void OrException_HasValue_ReturnsValue() =>
         Assert.AreEqual("test", "test".OrException());
 
     [TestMethod]
-    public void OrException_NullValue_ThrowsNullReferenceException()
+    public void OrException_NullValue_ThrowsInvalidOperationException()
     {
         string? value = null;
-        Assert.Throws<NullReferenceException>(() => value.OrException());
+        Assert.Throws<InvalidOperationException>(() => value.OrException());
     }
 
     [TestMethod]
-    public void OrException_WhitespaceOnly_ThrowsNullReferenceException() =>
-        Assert.Throws<NullReferenceException>(() => "   ".OrException());
-
-    #endregion
-
-    #region UntilOrEmpty
+    public void OrException_WhitespaceOnly_ThrowsInvalidOperationException() =>
+        Assert.Throws<InvalidOperationException>(() => "   ".OrException());
 
     [TestMethod]
     public void UntilOrEmpty_StopCharFound_ReturnsSubstring() =>
@@ -97,10 +83,6 @@ public sealed class StringExtensionsTests
     [TestMethod]
     public void UntilOrEmpty_EmptyValue_ReturnsEmpty() =>
         Assert.AreEqual(string.Empty, "".UntilOrEmpty(['@']));
-
-    #endregion
-
-    #region EqualsCaseInsensitive
 
     [TestMethod]
     public void EqualsCaseInsensitive_SameCase_ReturnsTrue() =>
@@ -137,10 +119,6 @@ public sealed class StringExtensionsTests
     public void EqualsCaseInsensitive_BothEmpty_ReturnsTrue() =>
         Assert.IsTrue("".EqualsCaseInsensitive(""));
 
-    #endregion
-
-    #region IsAnyOf
-
     [TestMethod]
     public void IsAnyOf_MatchFound_ReturnsTrue() =>
         Assert.IsTrue("test".IsAnyOf("foo", "test", "bar"));
@@ -165,10 +143,6 @@ public sealed class StringExtensionsTests
     public void IsAnyOf_CommaSeparated_NullInput_ReturnsFalse() =>
         Assert.IsFalse("test".IsAnyOfCommaSeparated(null));
 
-    #endregion
-
-    #region IsAnyPartOf
-
     [TestMethod]
     public void IsAnyPartOf_ContainsMatch_ReturnsTrue() =>
         Assert.IsTrue("hello world".IsAnyPartOf("wor"));
@@ -188,11 +162,6 @@ public sealed class StringExtensionsTests
         Assert.IsFalse(value.IsAnyPartOf("test"));
     }
 
-
-    #endregion
-
-    #region ToItems
-
     private static readonly string[] expected_abc = ["a", "b", "c"];
     private static readonly string[] expected_ab = ["a", "b"];
 
@@ -200,28 +169,28 @@ public sealed class StringExtensionsTests
     public void ToItems_DefaultSeparator_SplitsCorrectly()
     {
         var result = "a;b;c".ToItems();
-        CollectionAssert.AreEqual(expected_abc, result);
+        Assert.AreSequenceEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_CustomSeparator_SplitsCorrectly()
     {
         var result = "a,b,c".ToItems(',');
-        CollectionAssert.AreEqual(expected_abc, result);
+        Assert.AreSequenceEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_TrimsWhitespace()
     {
         var result = " a ; b ; c ".ToItems();
-        CollectionAssert.AreEqual(expected_abc, result);
+        Assert.AreSequenceEqual(expected_abc, result);
     }
 
     [TestMethod]
     public void ToItems_RemovesEmptyEntries()
     {
         var result = "a;;b".ToItems();
-        CollectionAssert.AreEqual(expected_ab, result);
+        Assert.AreSequenceEqual(expected_ab, result);
     }
 
     [TestMethod]
@@ -229,12 +198,8 @@ public sealed class StringExtensionsTests
     {
         string? value = null;
         var result = value.ToItems();
-        Assert.AreEqual(0, result.Length);
+        Assert.IsEmpty(result);
     }
-
-    #endregion
-
-    #region WithHtmlRemoved
 
     [TestMethod]
     public void WithHtmlRemoved_RemovesTags() =>
@@ -254,10 +219,6 @@ public sealed class StringExtensionsTests
         string? value = null;
         Assert.AreEqual(string.Empty, value.WithHtmlRemoved);
     }
-
-    #endregion
-
-    #region WithQuotationMarksRemoved
 
     [TestMethod]
     public void WithQuotationMarksRemoved_StraightDoubleQuotes_Removed() =>
@@ -305,10 +266,6 @@ public sealed class StringExtensionsTests
     [TestMethod]
     public void WithQuotationMarksRemoved_EmptyString_ReturnsEmpty() =>
         Assert.AreEqual(string.Empty, "".WithQuotationMarksRemoved);
-
-    #endregion
-
-    #region Version 2.0
 
     [TestMethod]
     public void IsAnyOf_SingleValueWithComma_IsOneValue() =>
@@ -360,10 +317,6 @@ public sealed class StringExtensionsTests
     public void WithoutQuotationMarks_ApostrophesToo() =>
         Assert.AreEqual("OBrien", "O'Brien".WithoutQuotationMarks(keepApostrophes: false));
 
-    #endregion
-
-    #region Truncated
-
     [TestMethod]
     [DataRow(null, 5, false, "")]
     [DataRow("", 5, false, "")]
@@ -376,10 +329,6 @@ public sealed class StringExtensionsTests
     [DataRow("Text", 0, false, "")]
     public void Truncated(string? text, int maxLength, bool ellipsis, string expected) =>
         Assert.AreEqual(expected, text.Truncated(maxLength, ellipsis));
-
-    #endregion
-
-    #region WordWrapped
 
     [TestMethod]
     [DataRow(null, 10, "")]
@@ -394,10 +343,6 @@ public sealed class StringExtensionsTests
     [TestMethod]
     public void WordWrappedBreaksLinesWithNewLineByDefault() =>
         Assert.AreEqual("Ett\ntvå", "Ett två".WordWrapped(4));
-
-    #endregion
-
-    #region Guid
 
     [TestMethod]
     [DataRow("3F2504E0-4F89-11D3-9A0C-0305E82C3301", true)]
@@ -417,5 +362,34 @@ public sealed class StringExtensionsTests
     public void ToGuidOrNewGivesANewGuid() =>
         Assert.AreNotEqual(Guid.Empty, ((string?)null).ToGuidOrNew());
 
-    #endregion
+    [TestMethod]
+    public void IndexOfContains_Match_ReturnsIndexWithoutRecursing() =>
+        Assert.AreEqual(1, new[] { "abc", "xyz", "yes" }.IndexOfContains("y"));
+
+    [TestMethod]
+    public void IndexOfContains_NoMatch_ReturnsMinusOne() =>
+        Assert.AreEqual(-1, new[] { "abc", "xyz" }.IndexOfContains("q"));
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow(" ")]
+    public void IndexOfContains_EmptySearchValue_ReturnsMinusOne(string? searchValue) =>
+        Assert.AreEqual(-1, new[] { "abc" }.IndexOfContains(searchValue));
+
+    [TestMethod]
+    public void IsAnyPartOf_PartFound_IgnoresCase() =>
+        Assert.IsTrue("Stockholm Södra".IsAnyPartOf("x", "SÖDRA"));
+
+    [TestMethod]
+    public void IsAnyPartOf_NoValues_ReturnsFalse() =>
+        Assert.IsFalse("Stockholm".IsAnyPartOf());
+
+    [TestMethod]
+    public void HasFileExtension_OneOfThem_IgnoresCase() =>
+        Assert.IsTrue("drawing.PNG".HasFileExtension(".svg", ".png"));
+
+    [TestMethod]
+    public void HasFileExtension_Null_ReturnsFalse() =>
+        Assert.IsFalse(((string?)null).HasFileExtension(".png"));
 }

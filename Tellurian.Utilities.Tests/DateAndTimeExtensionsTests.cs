@@ -1,4 +1,4 @@
-﻿using Tellurian.Utilities;
+using Tellurian.Utilities;
 
 namespace Tellurian.Utilities.Tests;
 
@@ -11,8 +11,7 @@ public sealed class DateAndTimeExtensionsTests
         var dateTime = new DateTime(2024, 1, 1, 12, 30, 0); // Jan 1, 12:30
         var result = dateTime.ToDouble;
 
-        // DayOfYear = 1, Hour/60 = 12/60 = 0.2, Minute/3600 = 30/3600 ≈ 0.0083
-        Assert.AreEqual(1 + 12.0 / 60 + 30.0 / 3600, result);
+        Assert.AreEqual(1 + (12.5 / 24), result, 1e-12);
     }
 
     [TestMethod]
@@ -30,8 +29,7 @@ public sealed class DateAndTimeExtensionsTests
         var timeSpan = new TimeSpan(1, 12, 30, 0); // 1 day, 12 hours, 30 minutes
         var result = timeSpan.ToDouble;
 
-        // TotalDays = 1.52083..., Hours/60 = 12/60 = 0.2, Minutes/3600 = 30/3600 ≈ 0.0083
-        Assert.AreEqual(timeSpan.TotalDays + 12.0 / 60 + 30.0 / 3600, result);
+        Assert.AreEqual(1 + (12.5 / 24), result, 1e-12);
     }
 
     [TestMethod]
@@ -46,7 +44,7 @@ public sealed class DateAndTimeExtensionsTests
     [TestMethod]
     public void Double_TimeOnly_ConvertsMinutesToTimeOnly()
     {
-        double minutes = 90.0; // 1 hour 30 minutes
+        var minutes = 90.0; // 1 hour 30 minutes
         var result = minutes.TimeOnly;
 
         Assert.AreEqual(new TimeOnly(1, 30), result);
@@ -55,7 +53,7 @@ public sealed class DateAndTimeExtensionsTests
     [TestMethod]
     public void Double_TimeOnly_ZeroMinutes_ReturnsMidnight()
     {
-        double minutes = 0.0;
+        var minutes = 0.0;
         var result = minutes.TimeOnly;
 
         Assert.AreEqual(new TimeOnly(0, 0), result);
@@ -64,7 +62,7 @@ public sealed class DateAndTimeExtensionsTests
     [TestMethod]
     public void Double_TimeOnly_FullDay_ReturnsCorrectTime()
     {
-        double minutes = 1439.0; // 23 hours 59 minutes
+        var minutes = 1439.0; // 23 hours 59 minutes
         var result = minutes.TimeOnly;
 
         Assert.AreEqual(new TimeOnly(23, 59), result);
@@ -103,4 +101,22 @@ public sealed class DateAndTimeExtensionsTests
         Assert.AreEqual("2026 - ", (from, (DateTime?)null).ToPeriodText("yyyy"));
         Assert.AreEqual(string.Empty, ((DateTime?)null, (DateTime?)null).ToPeriodText());
     }
+
+    [TestMethod]
+    [DataRow("en-US")]
+    [DataRow("sv-SE")]
+    public void HHMM_IsTwentyFourHourInEveryCulture(string culture)
+    {
+        System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo(culture);
+        Assert.AreEqual("14:30", new TimeOnly(14, 30).HHMM);
+        Assert.AreEqual("07:05", new TimeOnly(7, 5).HHMM);
+    }
+
+    [TestMethod]
+    public void DateTime_ToDouble_AtNoon_IsHalfADay() =>
+        Assert.AreEqual(1.5, new DateTime(2026, 1, 1, 12, 0, 0).ToDouble, 1e-12);
+
+    [TestMethod]
+    public void TimeSpan_ToDouble_TwelveHours_IsHalfADay() =>
+        Assert.AreEqual(0.5, TimeSpan.FromHours(12).ToDouble, 1e-12);
 }

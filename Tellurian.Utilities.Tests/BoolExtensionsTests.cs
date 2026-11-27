@@ -29,29 +29,15 @@ public sealed class BoolExtensionsTests
     [TestMethod]
     public void IfTrueThrows_True_ExceptionContainsParameterName()
     {
-        try
-        {
-            true.IfTrueThrows("myParameter", "Value is invalid");
-            Assert.Fail("Expected ArgumentOutOfRangeException");
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            Assert.AreEqual("myParameter", ex.ParamName);
-            Assert.IsTrue(ex.Message.Contains("Value is invalid"));
-        }
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => true.IfTrueThrows("myParameter", "Value is invalid"));
+        Assert.AreEqual("myParameter", ex.ParamName);
+        Assert.Contains("Value is invalid", ex.Message);
     }
 
     [TestMethod]
     public void IfTrueThrows_True_WithNullMessage_ThrowsWithParameterNameOnly()
     {
-        try
-        {
-            true.IfTrueThrows("myParameter", null);
-            Assert.Fail("Expected ArgumentOutOfRangeException");
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            Assert.AreEqual("myParameter", ex.ParamName);
-        }
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => true.IfTrueThrows("myParameter", null));
+        Assert.AreEqual("myParameter", ex.ParamName);
     }
 }

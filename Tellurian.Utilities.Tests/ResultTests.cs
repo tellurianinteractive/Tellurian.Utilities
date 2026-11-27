@@ -96,7 +96,7 @@ public sealed class ResultTests
         Result<int> timedOut = new TimedOut();
         Assert.IsTrue(one != two);
         Assert.IsTrue(one != timedOut);
-        Assert.IsFalse(one.Equals(default));
+        Assert.IsFalse(one.Equals(NoResult()));
     }
 
     [TestMethod]
@@ -118,4 +118,6 @@ public sealed class ResultTests
         var result = exception.AsResult<int>();
         Assert.IsTrue(result is FailureWithException { Exception: var kept } && ReferenceEquals(exception, kept));
     }
+
+    private static Result<int>? NoResult() => null;
 }

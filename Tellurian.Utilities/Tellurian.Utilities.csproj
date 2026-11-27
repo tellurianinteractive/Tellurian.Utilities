@@ -1,6 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	  <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
+	  <IsPackable>true</IsPackable>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <IsAotCompatible>true</IsAotCompatible>
 	  <AssemblyName>Tellurian.Utilities</AssemblyName>
 	  <RootNamespace>Tellurian.Utilities</RootNamespace>
 	  <Title>$(AssemblyName)</Title>
@@ -57,6 +61,27 @@
 	  </PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+	  <PackageTags>extensions result union string number color markdown text-correction name-capitalization IDataRecord DataSet Linq pagination</PackageTags>
+	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <EmbedUntrackedSources>true</EmbedUntrackedSources>
+	  <RepositoryType>Github</RepositoryType>
+	  <RepositoryUrl>https://github.com/tellurianinteractive/Tellurian.Utilities/</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/tellurianinteractive/Tellurian.Utilities</PackageProjectUrl>
+	  <Description>
+		  A library of extensions that has proved to be useful during some years.
+		  Instead of repeating this functionality everywhere, it is now collected
+		  in one place: strings, nullable numbers, colors, dates and times, LINQ,
+		  pagination, markdown, results of operations and HTTP requests, IDataRecord, and corrections of typed input such as
+		  name capitalization for European countries, ordinary text, email and MAC
+		  addresses and number ranges.
+	  </Description>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
@@ -68,11 +93,5 @@
     <PackageReference Include="Markdig" Version="1.6.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
 </Project>

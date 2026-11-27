@@ -1,9 +1,15 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace Tellurian.Utilities;
 
+/// <summary>
+/// Extensions for dates, times and periods.
+/// </summary>
 public static class DateAndTimeExtensions
 {
+    private const double MinutesPerDay = 1440.0;
+    private const double HoursPerDay = 24.0;
+
     extension(DateTime dateTime)
     {
         /// <summary>
@@ -17,20 +23,22 @@ public static class DateAndTimeExtensions
         /// <summary>
         /// Gets the value of the current date and time as a fractional day of the year.
         /// </summary>
-        /// <remarks>The returned value represents the day of the year, including fractional components
-        /// based on the hour and minute. This can be used for calculations that require a continuous representation of
+        /// <remarks>The returned value is the day of the year plus the time of day as a fraction of a day, to the minute:
+        /// 1 January 12:00 gives 1.5. This can be used for calculations that require a continuous representation of
         /// the date and time within the year.</remarks>
-        public double ToDouble => dateTime.DayOfYear + dateTime.Hour / 60.0 + dateTime.Minute / 3600.0;
+        public double ToDouble => dateTime.DayOfYear + (dateTime.Hour / HoursPerDay) + (dateTime.Minute / MinutesPerDay);
     }
 
     extension(DateTimeOffset dateTimeOffset)
     {
         /// <summary>
-        /// Gets the date component of the current value, excluding the time of day.
+        /// Gets the date component of the value converted to the local time zone of the machine running the code
+        /// (<see cref="DateTimeOffset.LocalDateTime"/>), not the date at the value's own offset.
         /// </summary>
         public DateOnly DateOnly => DateOnly.FromDateTime(dateTimeOffset.LocalDateTime);
         /// <summary>
-        /// Gets the time of day component from the underlying date and time value.
+        /// Gets the time of day of the value converted to the local time zone of the machine running the code
+        /// (<see cref="DateTimeOffset.LocalDateTime"/>), not the time at the value's own offset.
         /// </summary>
         public TimeOnly TimeOnly => TimeOnly.FromDateTime(dateTimeOffset.LocalDateTime);
 
@@ -85,9 +93,9 @@ public static class DateAndTimeExtensions
         /// </summary>
         public TimeOnly TimeOnly => TimeOnly.FromTimeSpan(timeSpan);
         /// <summary>
-        /// Gets the value of the represented time interval as a fractional number of days.
+        /// Gets the value of the represented time interval as a fractional number of days: 12 hours give 0.5.
         /// </summary>
-        public double ToDouble => timeSpan.TotalDays + timeSpan.Hours / 60.0 + timeSpan.Minutes / 3600.0;
+        public double ToDouble => timeSpan.TotalDays;
 
         /// <summary>
         /// Returns the greater of the current TimeSpan value and the specified TimeSpan value.
@@ -108,7 +116,8 @@ public static class DateAndTimeExtensions
     extension(DateOnly date)
     {
         /// <summary>
-        /// Gets the name of the day of the week represented by the current date.
+        /// Gets the English name of the day of the week, as <see cref="DayOfWeek"/> names it ("Monday"); it is not
+        /// translated to the current culture.
         /// </summary>
         public string WeekdayName => date.DayOfWeek.ToString();
     }
@@ -116,9 +125,9 @@ public static class DateAndTimeExtensions
     extension(TimeOnly time)
     {
         /// <summary>
-        /// Gets the time represented by this instance in 24-hour format (HH:mm).
+        /// Gets the time represented by this instance in 24-hour format (HH:mm) in every culture.
         /// </summary>
-        public string HHMM => time.ToShortTimeString();
+        public string HHMM => time.ToString("HH:mm", CultureInfo.InvariantCulture);
     }
 
     extension(double minutes)

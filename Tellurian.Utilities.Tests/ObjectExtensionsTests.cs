@@ -5,8 +5,6 @@ namespace Tellurian.Utilities.Tests;
 [TestClass]
 public sealed class ObjectExtensionsTests
 {
-    #region HasValue
-
     [TestMethod]
     public void HasValue_NonNullObject_ReturnsTrue()
     {
@@ -34,10 +32,6 @@ public sealed class ObjectExtensionsTests
         object obj = 42;
         Assert.IsTrue(obj.HasValue);
     }
-
-    #endregion
-
-    #region HasValueExcept
 
     [TestMethod]
     public void HasValueExcept_NonNullDifferentValue_ReturnsTrue()
@@ -82,14 +76,10 @@ public sealed class ObjectExtensionsTests
         Assert.IsTrue(obj.HasValueExcept(43));
     }
 
-    #endregion
-
-    #region ValueOrException
-
     [TestMethod]
     public void ValueOrException_NonNullValue_ReturnsValue()
     {
-        string? value = "test";
+        var value = "test";
         Assert.AreEqual("test", value.ValueOrException("paramName"));
     }
 
@@ -112,34 +102,23 @@ public sealed class ObjectExtensionsTests
     public void ValueOrException_NullValue_ExceptionContainsParameterName()
     {
         string? value = null;
-        try
-        {
-            _ = value.ValueOrException("myParameter", "Value cannot be null");
-            Assert.Fail("Expected ArgumentNullException");
-        }
-        catch (ArgumentNullException ex)
-        {
-            Assert.AreEqual("myParameter", ex.ParamName);
-            Assert.IsTrue(ex.Message.Contains("Value cannot be null"));
-        }
+        var ex = Assert.Throws<ArgumentNullException>(() => value.ValueOrException("myParameter", "Value cannot be null"));
+        Assert.AreEqual("myParameter", ex.ParamName);
+        Assert.Contains("Value cannot be null", ex.Message);
     }
 
     [TestMethod]
     public void ValueOrException_WithCustomObject_ReturnsObject()
     {
         var obj = new TestClass { Value = 42 };
-        TestClass? nullable = obj;
+        var nullable = obj;
         Assert.AreSame(obj, nullable.ValueOrException("param"));
     }
-
-    #endregion
-
-    #region IfNotEqualsThrow
 
     [TestMethod]
     public void IfNotEqualsThrow_EqualValues_DoesNotThrow()
     {
-        string value = "test";
+        var value = "test";
         // Should not throw
         value.IfNotEqualsThrow("test", "paramName", "Values must be equal");
     }
@@ -147,7 +126,7 @@ public sealed class ObjectExtensionsTests
     [TestMethod]
     public void IfNotEqualsThrow_DifferentValues_Throws()
     {
-        string value = "test";
+        var value = "test";
         try
         {
             value.IfNotEqualsThrow("other", "paramName", "Values must be equal");
@@ -177,46 +156,28 @@ public sealed class ObjectExtensionsTests
     [TestMethod]
     public void IfNotEqualsThrow_ExceptionContainsCorrectParamName()
     {
-        try
-        {
-            string value = "test";
-            value.IfNotEqualsThrow("other", "myParameter", "Values must be equal");
-            Assert.Fail("Expected ArgumentOutOfRangeException");
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            Assert.AreEqual("myParameter", ex.ParamName);
-            Assert.IsTrue(ex.Message.Contains("Values must be equal"));
-        }
+        var value = "test";
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => value.IfNotEqualsThrow("other", "myParameter", "Values must be equal"));
+        Assert.AreEqual("myParameter", ex.ParamName);
+        Assert.Contains("Values must be equal", ex.Message);
     }
 
     [TestMethod]
     public void IfNotEqualsThrow_WithoutMessage_StillThrows()
     {
-        string value = "test";
-        try
-        {
-            value.IfNotEqualsThrow("other", "paramName");
-            Assert.Fail("Expected ArgumentOutOfRangeException");
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            Assert.AreEqual("paramName", ex.ParamName);
-        }
+        var value = "test";
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => value.IfNotEqualsThrow("other", "paramName"));
+        Assert.AreEqual("paramName", ex.ParamName);
     }
 
-    #endregion
-
-    private class TestClass
+    private sealed class TestClass
     {
         public int Value { get; set; }
     }
 
-    #region ToSingleItemEnumerable
-
     [TestMethod]
     public void ToSingleItemEnumerable_Value_ReturnsOneItem() =>
-        Assert.AreEqual(1, "text".ToSingleItemEnumerable().Count());
+        Assert.HasCount(1, "text".ToSingleItemEnumerable());
 
     [TestMethod]
     public void ToSingleItemEnumerable_Null_ReturnsEmpty() =>
@@ -226,9 +187,7 @@ public sealed class ObjectExtensionsTests
     public void LinqAsEnumerable_OnAList_IsTheListItself()
     {
         List<int> numbers = [1, 2, 3];
-        IEnumerable<int> asEnumerable = numbers.AsEnumerable();
-        Assert.AreEqual(3, asEnumerable.Count(), "Before 2.0, the package's AsEnumerable() won and wrapped the list as one item.");
+        var asEnumerable = numbers.AsEnumerable();
+        Assert.HasCount(3, asEnumerable, "Before 2.0, the package's AsEnumerable() won and wrapped the list as one item.");
     }
-
-    #endregion
 }

@@ -10,8 +10,8 @@ public sealed class NamedColorExtensionsTests
     {
         var colors = new[] { "Yellow", "Orange", "Pink", "darkblue" }.ToNamedColors();
 
-        CollectionAssert.AreEqual(new[] { "Yellow", "Orange", "Pink", "darkblue" }, colors.Select(c => c.Name).ToArray());
-        CollectionAssert.AreEqual(new[] { "#FFFF00", "#FFA500", "#FFC0CB", "#00008B" }, colors.Select(c => c.HexColor).ToArray());
+        Assert.AreSequenceEqual(new[] { "Yellow", "Orange", "Pink", "darkblue" }, colors.Select(c => c.Name).ToArray());
+        Assert.AreSequenceEqual(new[] { "#FFFF00", "#FFA500", "#FFC0CB", "#00008B" }, colors.Select(c => c.HexColor).ToArray());
     }
 
     [TestMethod]

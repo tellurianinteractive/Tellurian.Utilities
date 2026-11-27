@@ -1,7 +1,10 @@
-﻿using Markdig;
+using Markdig;
 
 namespace Tellurian.Utilities.Web;
 
+/// <summary>
+/// Converts Markdown to HTML with Markdig.
+/// </summary>
 public static class MarkdownExtensions
 {
     /// <summary>

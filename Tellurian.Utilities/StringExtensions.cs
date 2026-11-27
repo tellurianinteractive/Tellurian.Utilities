@@ -1,10 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Tellurian.Utilities.Linq;
 
 namespace Tellurian.Utilities;
 
+/// <summary>
+/// Extensions for strings and sequences of strings.
+/// </summary>
 public static partial class StringExtensions
 {
     [GeneratedRegex("<.*?>")]
@@ -65,17 +68,6 @@ public static partial class StringExtensions
         /// <returns>true if every character in the current value exists in the chars array; otherwise, false. Returns false if
         /// the current value is null.</returns>
         public bool IsAllOf(char[] chars) => value?.All(c => chars.Contains(c)) == true;
-
-        /// <summary>
-        /// Determines whether any of the specified strings occur within the current value, using a case-insensitive
-        /// comparison.
-        /// </summary>
-        /// <remarks>The comparison is performed using ordinal, case-insensitive matching. If the current
-        /// value is not set, the method returns false.</remarks>
-        /// <param name="values">An array of strings to search for within the current value. Cannot be null or empty.</param>
-        /// <returns>true if at least one of the specified strings is found within the current value; otherwise, false.</returns>
-        public bool IsAnyPartOf(params string[] values) =>
-            values?.Length > 0 && value.HasValue && values.Any(v => value.Contains(v, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Determines whether any of the specified comma-separated values are present in the current value.
@@ -143,22 +135,23 @@ public static partial class StringExtensions
         public string? OrNullIfEmpty => value.IsEmpty ? null : value.Trim();
 
         /// <summary>
-        /// Gets the value if it is present; otherwise, throws a NullReferenceException.
+        /// Gets the value if it is present; otherwise, throws an <see cref="InvalidOperationException"/>.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The value is null, empty or white-space.</exception>
         public string OrException() =>
-            value.HasValue ? value : throw new NullReferenceException(nameof(value));
+            value.HasValue ? value : throw new InvalidOperationException("The value is missing.");
 
         /// <summary>
-        /// Returns the value if it is present; otherwise, throws a NullReferenceException with a specified message.
+        /// Returns the value if it is present; otherwise, throws an <see cref="InvalidOperationException"/> with a specified message.
         /// </summary>
         /// <param name="parameterName">The name of the parameter associated with the value being checked. Used in the exception message if the
         /// value is not present.</param>
         /// <param name="exceptionMessage">The custom message to include in the exception if the value is not present. Can be null or empty.</param>
         /// <returns>The value if it is present.</returns>
-        /// <exception cref="NullReferenceException">Thrown if the value is not present. The exception message includes the specified parameter name and message.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the value is not present. The exception message includes the specified parameter name and message.</exception>
         public string OrException(string parameterName, string? exceptionMessage) =>
             value.HasValue ? value :
-            throw new NullReferenceException($"{parameterName} {exceptionMessage}");
+            throw new InvalidOperationException($"{parameterName} {exceptionMessage}");
 
         /// <summary>
         /// Splits the current string value into an array of items using the specified separator character.
@@ -184,9 +177,10 @@ public static partial class StringExtensions
         /// value is null or empty, or if <paramref name="stopAt"/> is empty.</returns>
         public string UntilOrEmpty(char[] stopAt)
         {
+            ArgumentNullException.ThrowIfNull(stopAt);
             if (stopAt.Length > 0 && value.HasValue)
             {
-                int endIndex = value.IndexOfAny(stopAt);
+                var endIndex = value.IndexOfAny(stopAt);
                 if (endIndex > 0)
                 {
                     return value[..endIndex];
@@ -204,7 +198,7 @@ public static partial class StringExtensions
         /// </summary>
         public string WithHtmlRemoved =>
             value is null ? string.Empty :
-            Html().Replace(value, string.Empty).Replace("&nbsp;", " ").Replace("&nbsp", " ");
+            Html().Replace(value, string.Empty).Replace("&nbsp;", " ", StringComparison.Ordinal).Replace("&nbsp", " ", StringComparison.Ordinal);
 
         /// <summary>
         /// Gets the value of the current string with all quotation marks removed.
@@ -219,7 +213,7 @@ public static partial class StringExtensions
 
         /// <summary>
         /// Returns the string without quotation marks, keeping apostrophes (<c>'</c> and <c>’</c>) by default, so names such as
-        /// "O'Brien", "Cortina d'Ampezzo" and "'s-Hertogenbosch" stay intact. <see cref="WithQuotationMarksRemoved"/> removes them too.
+        /// "O'Brien", "Cortina d'Ampezzo" and "'s-Hertogenbosch" stay intact. <c>WithQuotationMarksRemoved</c> removes them too.
         /// </summary>
         /// <param name="keepApostrophes">Whether <c>'</c> and <c>’</c> are kept; true by default.</param>
         public string WithoutQuotationMarks(bool keepApostrophes = true) =>
@@ -280,7 +274,7 @@ public static partial class StringExtensions
             if (maxLength <= 0) return ellipsis && text.Length > 0 ? "..." : string.Empty;
             if (text.Length <= maxLength) return text;
             if (!ellipsis) return text[..maxLength];
-            var space = text[..maxLength].LastIndexOf(' ');
+            var space = text.AsSpan(0, maxLength).LastIndexOf(' ');
             return $"{text[..(space > 0 ? space : maxLength)]}...";
         }
 
@@ -299,7 +293,7 @@ public static partial class StringExtensions
                 var rest = paragraph;
                 while (rest.Length > width)
                 {
-                    var cut = rest.LastIndexOf(' ', width);
+                    var cut = rest.AsSpan(0, width + 1).LastIndexOf(' ');
                     if (cut <= 0) cut = width;
                     lines.Add(rest[..cut].TrimEnd());
                     rest = rest[cut..].TrimStart();
@@ -321,26 +315,35 @@ public static partial class StringExtensions
         /// <summary>
         /// Returns the zero-based index of the first element in the collection that contains the specified substring.
         /// </summary>
-        /// <param name="searchValue">The substring to locate within the elements of the collection. Can be null or empty.</param>
+        /// <param name="searchValue">The substring to locate within the elements of the collection, compared ordinally.</param>
         /// <returns>The zero-based index of the first element that contains the specified substring; otherwise, -1 if no such
-        /// element is found or the collection is empty.</returns>
-        public int IndexOfContains(string? searchValue)
-        {
-            if (searchValue.IsEmpty || !values.Any()) return -1;
-            var actualValues = values.Where(v => v.Contains(searchValue));
-            if (actualValues.IsEmpty) return -1;
-            return values.IndexOfContains(actualValues.First());
-        }
+        /// element is found, the collection is empty, or <paramref name="searchValue"/> is null, empty or white-space.</returns>
+        public int IndexOfContains(string? searchValue) =>
+            string.IsNullOrWhiteSpace(searchValue) ? -1 : values.IndexOf(v => v?.Contains(searchValue, StringComparison.Ordinal) == true);
     }
 
-    extension(string? filePath)
-    {
-        public bool HasFileExtension(params string[] extensions) =>
-            filePath is not null &&
-            extensions.Any(e => Path.GetExtension(filePath).Equals(e, StringComparison.OrdinalIgnoreCase));
-    }
+    // The methods below are classic extension methods: with params in a C# 14 extension block, the compiler wrongly
+    // reports CS8620 at the call sites (see "Issue C# 14 extension methods with params keyword.md").
 
-    #region These methods need to be classical extensions because a bug in C#14 extension using params keyword casuing the compiler incorrectly emits CS8620 warnings
+    /// <summary>
+    /// Determines whether any of the specified strings occur within the value, using an ordinal, case-insensitive comparison.
+    /// </summary>
+    /// <param name="value">The string value to search in.</param>
+    /// <param name="values">The strings to search for.</param>
+    /// <returns>true if at least one of <paramref name="values"/> is found within the value; false when the value or
+    /// <paramref name="values"/> is empty.</returns>
+    public static bool IsAnyPartOf([NotNullWhen(true)] this string? value, params string[]? values) =>
+        values?.Length > 0 && !string.IsNullOrWhiteSpace(value) && values.Any(v => value.Contains(v, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Determines whether the file path ends with one of the specified extensions, using a case-insensitive comparison.
+    /// </summary>
+    /// <param name="filePath">The file path or file name.</param>
+    /// <param name="extensions">The extensions, with their leading dot, such as ".png".</param>
+    /// <returns>true if the path has one of <paramref name="extensions"/>; otherwise, false.</returns>
+    public static bool HasFileExtension([NotNullWhen(true)] this string? filePath, params string[]? extensions) =>
+        filePath is not null &&
+        extensions?.Any(e => Path.GetExtension(filePath).Equals(e, StringComparison.OrdinalIgnoreCase)) == true;
 
     /// <summary>
     /// Determines whether the current value matches any of the specified strings, using a case-insensitive
@@ -349,8 +352,8 @@ public static partial class StringExtensions
     /// <param name="value">The string value to check.</param>
     /// <param name="values">An array of strings to compare with the current value. Can be empty.</param>
     /// <returns>true if the current value equals any of the specified strings, ignoring case; otherwise, false.</returns>
-    public static bool IsAnyOf(this string? value, params string[] values) =>
-        values.Length > 0 && values.Any(v => v.Equals(value, StringComparison.OrdinalIgnoreCase));
+    public static bool IsAnyOf(this string? value, params string[]? values) =>
+        values?.Length > 0 && values.Any(v => v.Equals(value, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Determines whether any of the specified comma-separated values match the current value.
@@ -369,9 +372,7 @@ public static partial class StringExtensions
     /// <param name="value">The string value to check.</param>
     /// <param name="except">The strings that don't count as a value, such as "n/a" or "NotApplicable".</param>
     /// <returns>true if the value has a value that is none of <paramref name="except"/>, ignoring case; otherwise, false.</returns>
-    public static bool HasValueExcept(this string? value, params string[] except) =>
-        value.HasValue && !value.IsAnyOf(except);
-
-    #endregion
+    public static bool HasValueExcept([NotNullWhen(true)] this string? value, params string[]? except) =>
+        !string.IsNullOrWhiteSpace(value) && !value.IsAnyOf(except);
 }
 

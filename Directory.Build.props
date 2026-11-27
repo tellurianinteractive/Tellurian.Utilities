@@ -1,43 +1,27 @@
 <Project>
 	<PropertyGroup>
-		<TargetFrameworks>net11.0</TargetFrameworks>
+		<AppTargetFramework>net11.0</AppTargetFramework>
+		<PackageTargetFrameworks>net11.0</PackageTargetFrameworks>
+		<Version>2.4.0</Version>
+	</PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<MSTestAnalysisMode>All</MSTestAnalysisMode>
+	</PropertyGroup>
+	<PropertyGroup>
 		<Product>Tellurian.Utilities</Product>
 		<Company>Tellurian Interactive</Company>
 		<Copyright>© Stefan Fjällemark 2023-2026</Copyright>
 		<Authors>Stefan Fjällemark</Authors>
-		<Version>2.4.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<Platforms>AnyCPU</Platforms>
-		<ImplicitUsings>true</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-	<PropertyGroup>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-		<PackageTags>extensions result union string number color markdown text-correction name-capitalization IDataRecord DataSet Linq pagination</PackageTags>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<Description>
-			A library of extensions that has proved to be useful during some years.
-			Instead of repeating this functionality everywhere, it is now collected
-			in one place: strings, nullable numbers, colors, dates and times, LINQ,
-			pagination, markdown, results of operations and HTTP requests, IDataRecord, and corrections of typed input such as
-			name capitalization for European countries, ordinary text, email and MAC
-			addresses and number ranges.
-		</Description>
-	</PropertyGroup>
-	<PropertyGroup>
-		<RepositoryType>Github</RepositoryType>
-		<RepositoryUrl>https://github.com/tellurianinteractive/Tellurian.Utilities/</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/tellurianinteractive/Tellurian.Trains.Utilities</PackageProjectUrl>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-	</PropertyGroup>
-	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
-		<NoWarn>$(NoWarn);MSTEST0001;MSTEST0037</NoWarn>
 	</PropertyGroup>
 </Project>

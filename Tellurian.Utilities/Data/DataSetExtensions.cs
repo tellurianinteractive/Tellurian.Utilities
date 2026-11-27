@@ -1,7 +1,10 @@
-﻿using System.Data;
+using System.Data;
 
 namespace Tellurian.Utilities.Data;
 
+/// <summary>
+/// Extensions for rows of a <see cref="DataTable"/>, for example read from a spreadsheet.
+/// </summary>
 public static class DataSetExtensions
 {
     extension(DataRow row)
@@ -15,7 +18,7 @@ public static class DataSetExtensions
         {
             var items = row.ItemArray;
             if (items is null) return [];
-            return items.Select(i => i is null ? string.Empty : i.ToString()).ToArray()!;
+            return [.. items.Select(i => i?.ToString() ?? string.Empty)];
         }
 
         /// <summary>

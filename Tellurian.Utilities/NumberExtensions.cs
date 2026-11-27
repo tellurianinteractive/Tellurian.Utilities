@@ -1,7 +1,10 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Tellurian.Utilities;
 
+/// <summary>
+/// Extensions for numbers and nullable numbers.
+/// </summary>
 public static class NumberExtensions
 {
     extension(int number)

@@ -6,14 +6,12 @@ namespace Tellurian.Utilities.Tests;
 [TestClass]
 public sealed class ListExtensionsTests
 {
-    #region TryGetFirstValue
-
     [TestMethod]
     public void TryGetFirstValue_MatchFound_ReturnsTrueAndValue()
     {
         var list = new List<string> { "apple", "banana", "cherry" };
 
-        var result = list.TryGetFirstValue(s => s.StartsWith("ban"), out var value);
+        var result = list.TryGetFirstValue(s => s.StartsWith("ban", StringComparison.Ordinal), out var value);
 
         Assert.IsTrue(result);
         Assert.AreEqual("banana", value);
@@ -24,7 +22,7 @@ public sealed class ListExtensionsTests
     {
         var list = new List<string> { "apple", "banana", "cherry" };
 
-        var result = list.TryGetFirstValue(s => s.StartsWith("xyz"), out var value);
+        var result = list.TryGetFirstValue(s => s.StartsWith("xyz", StringComparison.Ordinal), out var value);
 
         Assert.IsFalse(result);
         Assert.IsNull(value);
@@ -46,7 +44,7 @@ public sealed class ListExtensionsTests
     {
         var list = new List<string> { "apple", "apricot", "avocado" };
 
-        var result = list.TryGetFirstValue(s => s.StartsWith("a"), out var value);
+        var result = list.TryGetFirstValue(s => s is ['a', ..], out var value);
 
         Assert.IsTrue(result);
         Assert.AreEqual("apple", value);
@@ -65,18 +63,30 @@ public sealed class ListExtensionsTests
         var result = list.TryGetFirstValue(p => p.Age > 30, out var value);
 
         Assert.IsTrue(result);
-        Assert.AreEqual("Charlie", value?.Name);
+        Assert.IsNotNull(value);
+        Assert.AreEqual("Charlie", value.Name);
     }
 
     [TestMethod]
-    public void TryGetFirstValue_PredicateMatchesFirst_ReturnsFirst()
+    public void TryGetFirstValue_ValueTypeNoMatch_ReturnsFalse()
     {
-        var list = new List<int?> { 1, 2, 3 };
-        var intList = list.Cast<int?>().ToList();
+        int[] numbers = [1, 2];
 
-        // This test verifies behavior with nullable value types boxed as objects
-        var objList = new List<object?> { 1, 2, 3 };
-        // Note: TryGetFirstValue works with List<T> where T is class
+        var result = numbers.TryGetFirstValue(i => i > 5, out var value);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(0, value);
+    }
+
+    [TestMethod]
+    public void TryGetFirstValue_ValueTypeMatchEqualToDefault_ReturnsTrue()
+    {
+        int[] numbers = [3, 0, 2];
+
+        var result = numbers.TryGetFirstValue(i => i == 0, out var value);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(0, value);
     }
 
     [TestMethod]
@@ -90,11 +100,33 @@ public sealed class ListExtensionsTests
         Assert.AreEqual("found", value);
     }
 
-    #endregion
-
-    private class Person
+    private sealed class Person
     {
         public string Name { get; set; } = string.Empty;
         public int Age { get; set; }
     }
+
+    [TestMethod]
+    public void IndexOf_Match_ReturnsIndex() =>
+        Assert.AreEqual(2, new[] { 5, 6, 7 }.IndexOf(i => i == 7));
+
+    [TestMethod]
+    public void IndexOf_NoMatch_ReturnsMinusOne() =>
+        Assert.AreEqual(-1, new[] { 5, 6, 7 }.IndexOf(i => i == 8));
+
+    [TestMethod]
+    public void IsEmpty_NullEmptyAndNonEmptySequences()
+    {
+        List<int>? none = null;
+        Assert.IsTrue(none.IsEmpty);
+        Assert.IsTrue(none.IsNull);
+        Assert.IsTrue(new List<int>().IsEmpty);
+        Assert.IsTrue(Enumerable.Empty<string>().IsEmpty);
+        Assert.IsFalse(Enumerable.Range(1, 3).Where(i => i > 2).IsEmpty);
+        Assert.IsFalse(new[] { "a" }.IsEmpty);
+    }
+
+    [TestMethod]
+    public void IsEmpty_OnString_IsTheStringRule() =>
+        Assert.IsTrue("   ".IsEmpty);
 }

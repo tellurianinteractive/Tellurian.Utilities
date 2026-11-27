@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Tellurian.Utilities;
@@ -24,10 +24,25 @@ namespace Tellurian.Utilities;
 public sealed class Result<T> : IUnion, IEquatable<Result<T>>
 {
     // The constructors define the case types and give the implicit conversions from them.
+
+    /// <summary>A result holding a success with data.</summary>
+    /// <param name="value">The case.</param>
     public Result(SuccessWithData<T> value) => Value = value;
+
+    /// <summary>A result holding a success without data.</summary>
+    /// <param name="value">The case.</param>
     public Result(SuccessNoData value) => Value = value;
+
+    /// <summary>A result holding a failure caused by an exception.</summary>
+    /// <param name="value">The case.</param>
     public Result(FailureWithException value) => Value = value;
+
+    /// <summary>A result holding a failure with a status code.</summary>
+    /// <param name="value">The case.</param>
     public Result(FailureWithStatusCode value) => Value = value;
+
+    /// <summary>A result holding a timeout.</summary>
+    /// <param name="value">The case.</param>
     public Result(TimedOut value) => Value = value;
 
     /// <summary>The case the result holds; never null.</summary>
@@ -35,9 +50,17 @@ public sealed class Result<T> : IUnion, IEquatable<Result<T>>
 
     /// <summary>Results are equal when they hold equal cases.</summary>
     public bool Equals(Result<T>? other) => other is not null && Value.Equals(other.Value);
+
+    /// <inheritdoc/>
     public override bool Equals(object? obj) => obj is Result<T> other && Equals(other);
+
+    /// <inheritdoc/>
     public override int GetHashCode() => Value.GetHashCode();
+
+    /// <summary>Results are equal when they hold equal cases.</summary>
     public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
+
+    /// <summary>Results are unequal when they hold different cases.</summary>
     public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
 
     /// <summary>True for <see cref="SuccessWithData{T}"/> and <see cref="SuccessNoData"/>.</summary>
@@ -62,50 +85,4 @@ public sealed class Result<T> : IUnion, IEquatable<Result<T>>
         data = default;
         return false;
     }
-}
-
-/// <summary>A successful result with data.</summary>
-/// <param name="Data">The data the operation gave.</param>
-public readonly record struct SuccessWithData<T>(T Data);
-
-/// <summary>A successful result without data, for example after a save or a delete.</summary>
-public readonly record struct SuccessNoData;
-
-/// <summary>A failed result caused by an exception.</summary>
-/// <param name="Exception">The exception that the operation threw.</param>
-[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Named after its content, like the other cases; it is no exception type.")]
-public readonly record struct FailureWithException(Exception Exception);
-
-/// <summary>A failed result with a status code, for example an HTTP status code.</summary>
-/// <param name="StatusCode">The status code telling why the operation failed.</param>
-public readonly record struct FailureWithStatusCode(int StatusCode);
-
-/// <summary>A failed result because the operation took too long.</summary>
-public readonly record struct TimedOut;
-
-public static class ResultExtensions
-{
-    // Classic static methods: generic extension members can fail under Blazor WebAssembly (TypeLoadException).
-
-    /// <summary>
-    /// The exception as a failed result: <see cref="TimedOut"/> for a <see cref="TimeoutException"/> and for the
-    /// <see cref="TaskCanceledException"/> that <see cref="HttpClient"/> throws on its timeout, otherwise <see cref="FailureWithException"/>.
-    /// </summary>
-    public static Result<T> AsResult<T>(this Exception exception) => exception switch
-    {
-        TimeoutException or TaskCanceledException { InnerException: TimeoutException } => new TimedOut(),
-        _ => new FailureWithException(exception),
-    };
-
-    /// <summary>
-    /// A short text telling the outcome, for every case: "Succeeded.", the exception message,
-    /// "Failed with status code 404.", "Timed out.".
-    /// </summary>
-    public static string GetMessage<T>(this Result<T> result) => result switch
-    {
-        SuccessWithData<T> or SuccessNoData => "Succeeded.",
-        FailureWithException failure => failure.Exception?.Message ?? "Failed.",
-        FailureWithStatusCode failure => $"Failed with status code {failure.StatusCode}.",
-        TimedOut => "Timed out.",
-    };
 }

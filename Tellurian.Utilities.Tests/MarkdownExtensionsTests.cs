@@ -14,14 +14,14 @@ public sealed class MarkdownExtensionsTests
     {
         var html = "- First **bold** item\n- Second item".HtmlFromMarkdown();
 
-        StringAssert.Contains(html, "<ul>");
-        StringAssert.Contains(html, "<li>First <strong>bold</strong> item</li>");
-        StringAssert.Contains(html, "<li>Second item</li>");
+        Assert.Contains("<ul>", html);
+        Assert.Contains("<li>First <strong>bold</strong> item</li>", html);
+        Assert.Contains("<li>Second item</li>", html);
     }
 
     [TestMethod]
     public void HtmlFromMarkdown_Table_UsesAdvancedExtensions() =>
-        StringAssert.Contains("| A | B |\n|---|---|\n| 1 | 2 |".HtmlFromMarkdown(), "<table>");
+        Assert.Contains("<table>", "| A | B |\n|---|---|\n| 1 | 2 |".HtmlFromMarkdown());
 
     [TestMethod]
     [DataRow(null)]

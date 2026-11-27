@@ -109,4 +109,8 @@ public sealed class TextCasingExtensionsTests
     [DataRow("FREMO", "fREMO", DisplayName = "Only the first letter")]
     [DataRow("123", "123")]
     public void WithInitialLowerCase(string? text, string expected) => Assert.AreEqual(expected, text.WithInitialLowerCase);
+
+    [TestMethod]
+    public void Corrected_PlainCharactersAlone_MakesQuotesPlainAndTrims() =>
+        Assert.AreEqual("\"Gas\"", " \u201CGas\u201D ".Corrected(TextCase.AsTyped, TextCleanup.PlainCharacters));
 }

@@ -5,8 +5,6 @@ namespace Tellurian.Utilities.Tests;
 [TestClass]
 public sealed class ColorExtensionsTests
 {
-    #region IsHexColor
-
     [TestMethod]
     public void IsHexColor_ValidHex_ReturnsTrue() =>
         Assert.IsTrue("#FF00AA".IsHexColor);
@@ -49,10 +47,6 @@ public sealed class ColorExtensionsTests
     [TestMethod]
     public void IsHexColor_Empty_ReturnsFalse() =>
         Assert.IsFalse("".IsHexColor);
-
-    #endregion
-
-    #region HexColor
 
     [TestMethod]
     public void HexColor_AlreadyHex_ReturnsSame() =>
@@ -107,10 +101,6 @@ public sealed class ColorExtensionsTests
     public void HexColor_GrayAmericanSpelling_ReturnsCorrectHex() =>
         Assert.AreEqual("#808080", "Gray".HexColor);
 
-    #endregion
-
-    #region IsWhite
-
     [TestMethod]
     public void IsWhite_HexWhite_ReturnsTrue() =>
         Assert.IsTrue("#FFFFFF".IsWhite);
@@ -150,10 +140,6 @@ public sealed class ColorExtensionsTests
     [TestMethod]
     public void IsWhite_RedHex_ReturnsFalse() =>
         Assert.IsFalse("#FF0000".IsWhite);
-
-    #endregion
-
-    #region TextColor
 
     [TestMethod]
     public void TextColor_WhiteBackground_ReturnsBlackText() =>
@@ -207,10 +193,6 @@ public sealed class ColorExtensionsTests
     public void TextColor_LowercaseBlack_ReturnsWhiteText() =>
         Assert.AreEqual("#FFFFFF", "black".TextColor);
 
-    #endregion
-
-    #region Version 2.0
-
     [TestMethod]
     [DataRow("#ff8800", "#FF8800")]
     [DataRow("ff8800", "#FF8800")]
@@ -253,6 +235,4 @@ public sealed class ColorExtensionsTests
         Assert.AreEqual("#FFFFFF", "#FF8000".TextColor, "Brightness 151 is below the default 170.");
         Assert.AreEqual("#000000", "#FF8000".ContrastingTextColor(128));
     }
-
-    #endregion
 }

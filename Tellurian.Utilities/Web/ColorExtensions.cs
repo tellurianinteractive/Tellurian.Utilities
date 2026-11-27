@@ -1,8 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Tellurian.Utilities.Web;
 
+/// <summary>
+/// Extensions for colors given as hex codes or as the standard web color names.
+/// </summary>
 public static partial class ColorExtensions
 {
     [GeneratedRegex("^#([A-Fa-f0-9]{6})$")]
@@ -126,7 +130,7 @@ public static partial class ColorExtensions
 
         /// <summary>
         /// Returns a contrasting text color, white (<c>#FFFFFF</c>) or black (<c>#000000</c>), for the color as background, with
-        /// white below the given perceived brightness (0-255; <see cref="TextColor"/> uses 170).
+        /// white below the given perceived brightness (0-255; <c>TextColor</c> uses 170).
         /// </summary>
         public string ContrastingTextColor(int darkBelowBrightness) => color.Yiq < darkBelowBrightness ? "#FFFFFF" : "#000000";
 
@@ -134,7 +138,7 @@ public static partial class ColorExtensions
         public bool IsKnownColor => color.NormalizedHexColor is not null;
 
         /// <summary>
-        /// Gets the hex code of a known color name or a hex color, or false for anything else; unlike <see cref="HexColor"/>, an unknown
+        /// Gets the hex code of a known color name or a hex color, or false for anything else; unlike <c>HexColor</c>, an unknown
         /// value can be told apart from white.
         /// </summary>
         public bool TryGetHexColor([NotNullWhen(true)] out string? hexColor)
@@ -154,10 +158,10 @@ public static partial class ColorExtensions
                 if (color.IsEmpty) return null;
                 var trimmed = color.Trim();
                 if (ColorNameToHex.TryGetValue(trimmed, out var named)) return named;
-                var digits = trimmed.StartsWith('#') ? trimmed[1..] : trimmed;
+                var digits = trimmed[0] == '#' ? trimmed[1..] : trimmed;
                 if (digits.Length is not (3 or 6) || !digits.All(char.IsAsciiHexDigit)) return null;
                 if (digits.Length == 3) digits = string.Concat(digits.Select(d => $"{d}{d}"));
-                return "#" + digits.ToUpperInvariant();
+                return $"#{digits.ToUpperInvariant()}";
             }
         }
 
@@ -174,10 +178,10 @@ public static partial class ColorExtensions
             get
             {
                 var hexColor = color.HexColor;
-                var r = int.Parse(hexColor.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
-                var g = int.Parse(hexColor.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
-                var b = int.Parse(hexColor.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
-                return (r * 299 + g * 587 + b * 114) / 1000;
+                var r = int.Parse(hexColor.AsSpan(1, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                var g = int.Parse(hexColor.AsSpan(3, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                var b = int.Parse(hexColor.AsSpan(5, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                return ((r * 299) + (g * 587) + (b * 114)) / 1000;
             }
         }
 

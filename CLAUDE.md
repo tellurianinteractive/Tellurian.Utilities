@@ -44,16 +44,22 @@ dotnet pack
 - `Tellurian.Utilities.Text` - Corrections of typed input: declarative corrections (`Corrected` with `TextCase` and `TextCleanup`, `TextCasings`), ordinary text, email and MAC addresses, number ranges
 - `Tellurian.Utilities.Web` - Markdown, color, markup and HTTP extensions
 
-Keep `README.md` in step with every public member: it is the package's documentation on nuget.org.
+Keep `README.md` in step with every public member: it is the package's documentation on nuget.org. Every public type and
+member has an XML doc comment (`GenerateDocumentationFile`; warnings are errors). User-visible changes get a bullet in
+`RELEASENOTES.md`.
 
 Extensions must not be needed inside EF Core queries: extension properties can't appear in expression trees (CS9296), and
 extension methods aren't translated. Avoid names that compete with LINQ or the BCL (`AsEnumerable()` on any class won over
-LINQ's until 2.0), and with C# 14 extension blocks, use classic static methods for `params` (CS8620) and generic methods that
-must run under Blazor WebAssembly (TypeLoadException).
+LINQ's until 2.0; the `IDataRecord` getters `GetString(string)`, `GetDouble(string)`, `GetByte(string)` and `IsDBNull(string)`
+lose to the BCL's `DbDataReader` extensions in `System.Data`). With C# 14 extension blocks, use classic static methods for
+`params` (CS8620) and for all generic members (TypeLoadException under Blazor WebAssembly); this is the one exception to the
+"extension blocks only" rule. The package is `IsAotCompatible`: reflection-based code needs a source-generated alternative.
 
 ## C# Language Features
 
-This codebase uses **C# 14 extension members** (preview feature). Extensions are declared using the new `extension(Type target)` block syntax instead of traditional `this` parameter syntax:
+This codebase uses the latest released C# (`LangVersion` `latest`, C# 15 with .NET 11), including **C# 14 extension members**
+and the C# 15 `union` (`Result<T>`). Extensions are declared using the `extension(Type target)` block syntax instead of
+traditional `this` parameter syntax, except for the cases above:
 
 ```csharp
 extension(string? value)
@@ -66,11 +72,12 @@ extension(string? value)
 ## Dependencies
 
 - **Markdig** - Used for Markdown to HTML conversion in `MarkdownExtensions.cs`
-- **MSTest.Sdk 4.0** - Test framework
+- **MSTest.Sdk 4.5** - Test framework, on Microsoft Testing Platform
 
 ## Testing Conventions
 
-Use `Assert.Throws<T>()` for exception testing (MSTest.Sdk 4.0 API):
+Use `Assert.Throws<T>()` for exception testing (MSTest.Sdk 4 API), never asserts in a `catch` block. Assembly attributes are
+in `_AssemblySettings.cs`. `TestContext` is taken through the test class's primary constructor.
 
 ```csharp
 [TestMethod]
@@ -92,19 +99,19 @@ public void Method_Condition_ThrowsException() =>
 - Triggers on push/PR to master
 - Builds and runs tests
 
-**Release Pipeline** (`.github/workflows/release.yml`):
+**Publish Pipeline** (`.github/workflows/publish.yml`):
 - Triggers automatically when `Directory.Build.props` changes on master
 - Can also be triggered manually via workflow dispatch
-- Reads version from `Directory.Build.props`
+- Reads version from `Directory.Build.props`, and does nothing when the tag `v<Version>` exists (already released)
 - Builds, tests, packs, and publishes to NuGet.org
 - Automatically creates git tag and GitHub Release
 
 **Publishing uses nuget.org Trusted Publishing** (OIDC, `NuGet/login`); no API key is stored.
-- nuget.org policy: owner `tellurianinteractive`, repository `Tellurian.Utilities`, workflow file `release.yml`.
-- The nuget.org profile name `tellurian` is set in `release.yml` (`NuGet/login`, `user`).
+- nuget.org policy: owner `tellurianinteractive`, repository `Tellurian.Utilities`, workflow file `publish.yml`.
+- The nuget.org profile name `tellurian` is set in `publish.yml` (`NuGet/login`, `user`).
 
 **To release:**
-1. Update `<Version>` in `Directory.Build.props`
+1. Update `<Version>` in `Directory.Build.props`, and give the release its section in `RELEASENOTES.md` and `PackageReleaseNotes`
 2. Commit and push to master
 3. Release runs automatically
 

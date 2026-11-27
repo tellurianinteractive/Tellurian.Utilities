@@ -1,4 +1,8 @@
-name: Release
+name: Publish
+
+# Publishes to nuget.org when <Version> in Directory.Build.props is a version not yet released (no tag v<Version>).
+# nuget.org Trusted Publishing policy: repository owner tellurianinteractive, repository Tellurian.Utilities, workflow file publish.yml.
+# No API key is stored: NuGet/login exchanges the GitHub OIDC token for a key valid for one hour.
 
 on:
   workflow_dispatch:
@@ -8,19 +12,16 @@ on:
       - 'Directory.Build.props'
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Push the tag and create the GitHub release.
       id-token: write  # GitHub OIDC token for nuget.org Trusted Publishing.
 
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
         with:
-          global-json-file: global.json
+          fetch-depth: 0  # The tags are needed to tell whether the version is released.
 
       - name: Extract version from Directory.Build.props
         id: version
@@ -28,32 +29,48 @@ jobs:
           VERSION=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "RELEASED=true" >> $GITHUB_OUTPUT
+            echo "::notice::Version $VERSION is already released (tag v$VERSION); nothing to publish."
+          else
+            echo "RELEASED=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup .NET
+        if: steps.version.outputs.RELEASED == 'false'
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
 
       - name: Restore dependencies
+        if: steps.version.outputs.RELEASED == 'false'
         run: dotnet restore
 
       - name: Build
+        if: steps.version.outputs.RELEASED == 'false'
         run: dotnet build --no-restore --configuration Release
 
       - name: Test
+        if: steps.version.outputs.RELEASED == 'false'
         run: dotnet test --no-build --configuration Release --verbosity normal
 
       - name: Pack
+        if: steps.version.outputs.RELEASED == 'false'
         run: dotnet pack Tellurian.Utilities/Tellurian.Utilities.csproj --no-build --configuration Release --output ./nupkg
 
-      # Trusted Publishing: exchanges the OIDC token for an API key valid for one hour; no stored API key.
-      # Requires a Trusted Publishing policy on nuget.org for this repository and release.yml,
-      # The user is the policy owner's nuget.org profile name (not the email address); it isn't a secret.
       - name: NuGet login (OIDC → temporary API key)
+        if: steps.version.outputs.RELEASED == 'false'
         id: login
         uses: NuGet/login@v1
         with:
-          user: tellurian
+          user: tellurian  # The policy owner's nuget.org profile name (not the email address); it isn't a secret.
 
       - name: Push to NuGet
+        if: steps.version.outputs.RELEASED == 'false'
         run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create and push tag
+        if: steps.version.outputs.RELEASED == 'false'
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
@@ -61,6 +78,7 @@ jobs:
           git push origin "v${{ steps.version.outputs.VERSION }}"
 
       - name: Create GitHub Release
+        if: steps.version.outputs.RELEASED == 'false'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}

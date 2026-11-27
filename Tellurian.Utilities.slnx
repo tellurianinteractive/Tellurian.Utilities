@@ -3,6 +3,8 @@
     <File Path="Directory.Build.props" />
     <File Path="global.json" />
     <File Path="README.md" />
+    <File Path="RELEASENOTES.md" />
+    <File Path=".editorconfig" />
   </Folder>
   <Project Path="Tellurian.Utilities.Tests/Tellurian.Utilities.Tests.csproj" />
   <Project Path="Tellurian.Utilities/Tellurian.Utilities.csproj" />

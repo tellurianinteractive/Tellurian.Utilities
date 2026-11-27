@@ -36,8 +36,8 @@ Extensions on `string?`:
 - `IsNumberOrEmpty` - Returns true if string is empty or represents a number.
 - `IsZeroesOrEmpty` - Returns true if string is empty or consists only of '0' characters.
 - `OrElse(string)` - Returns the value or an alternative if empty.
-- `OrException` - Gets the value or throws NullReferenceException.
-- `OrExceptionWithMessage(string, string?)` - Gets the value or throws NullReferenceException with parameter name and message.
+- `OrException()` - Gets the value or throws `InvalidOperationException`.
+- `OrException(string, string?)` - Gets the value or throws `InvalidOperationException` with parameter name and message.
 - `OrEmpty` - Gets the value or returns empty string if null.
 - `OrNullIfEmpty` - Gets the value trimmed, or null if empty or white-space (for optional database columns).
 - `WithHtmlRemoved` - Returns string with all HTML tags and `&nbsp;` removed.
@@ -62,6 +62,7 @@ Extensions on `string?`:
 
 Extensions on `IEnumerable<string>`:
 - `AreAllEmpty` - Returns true if all strings in the collection are empty.
+- `IndexOfContains(string?)` - Returns the index of the first string that contains the search value (ordinal), or -1.
 
 Extensions on file path strings:
 - `HasFileExtension(params string[])` - Returns true if file path has one of the specified extensions (case-insensitive).
@@ -133,16 +134,25 @@ Namespace `Tellurian.Utilities.Linq`
 
 Extensions on `IEnumerable<T>`:
 - `IndexOf(Func<T, bool>)` - Returns zero-based index of first element matching the predicate, or -1 if not found.
-- `TryGetFirstValue(Func<T,bool>, out T?)` - Try-get pattern for finding first matching item.
+- `TryGetFirstValue(Func<T,bool>, out T)` - Try-get pattern for finding first matching item; true for any match, also a value
+  type's default or a null item.
+
+Extensions on `IEnumerable` (any sequence, also `IEnumerable<T>`):
+- `IsEmpty` - True if the sequence is null or has no items. On a `string`, the string rule above applies (null or white-space).
+- `IsNull` - True if the sequence is null.
+
+The generic members are classic extension methods, because generic C# 14 extension blocks fail to load under Blazor
+WebAssembly (`TypeLoadException`).
 
 ## Pagination Extensions
 Namespace `Tellurian.Utilities.Printing`
 
 Extensions on `IEnumerable<T>` for splitting a sequence into pages for printing:
 - `TotalPages(int itemsPerPage)` - Returns the total number of pages needed to display all items, or 0 if the sequence is null or empty.
+  Zero or negative `itemsPerPage` throws `ArgumentOutOfRangeException`, also for `Page` and `ItemsPerPage`.
 - `Page(int itemPerPage, int pageNumber)` - Returns the items on the specified one-based page, or an empty sequence if the page number is out of range.
 - `ItemsPerPage(int itemsPerPage)` - Splits the sequence into pages, each containing at most the specified number of items.
-- `Pages(Func<T,double> height, int maxHeight, Func<T,T,bool>? pagebreak, double initialHeight = 0.0)` - Splits the sequence into pages based on accumulated item height, with an optional rule to force page breaks.
+- `Pages(Func<T,double> height, double maxHeight, Func<T,T,bool>? pagebreak, double initialHeight = 0.0)` - Splits the sequence into pages based on accumulated item height, with an optional rule to force page breaks. An item taller than a page gets a page of its own; no page is empty.
 
 ## Date and Time Extensions
 Namespace `Tellurian.Utilities`
@@ -150,11 +160,11 @@ Namespace `Tellurian.Utilities`
 Extensions on `DateTime`:
 - `DateOnly` - Gets the date component as `DateOnly`.
 - `TimeOnly` - Gets the time component as `TimeOnly`.
-- `ToDouble` - Gets the date/time as a fractional day of year.
+- `ToDouble` - Gets the day of the year plus the time of day as a fraction of a day: 1 January 12:00 is 1.5.
 
 Extensions on `DateTimeOffset` and `DateTimeOffset?`:
-- `DateOnly` - Gets the date component as `DateOnly` (not nullable).
-- `TimeOnly` - Gets the time component as `TimeOnly` (not nullable).
+- `DateOnly` - Gets the date component as `DateOnly` (not nullable), in the local time zone of the machine running the code.
+- `TimeOnly` - Gets the time component as `TimeOnly` (not nullable), in the local time zone of the machine running the code.
 - `ToDateText()` and `ToDateAndTimeText()` - The date ("d"), or date and time ("g"), in the current culture; empty for no value.
 
 Extensions on periods, `(DateTime? from, DateTime? to)`, `(int? from, int? to)` and `(short? from, short? to)`:
@@ -162,15 +172,15 @@ Extensions on periods, `(DateTime? from, DateTime? to)`, `(int? from, int? to)` 
 
 Extensions on `TimeSpan`:
 - `TimeOnly` - Gets the time as `TimeOnly`.
-- `ToDouble` - Gets the time as fractional days.
+- `ToDouble` - Gets the time as fractional days (`TotalDays`): 12 hours is 0.5.
 - `Max(TimeSpan)` - Returns the greater of the current and specified TimeSpan.
 - `Min(TimeSpan)` - Returns the smaller of the current and specified TimeSpan.
 
 Extensions on `DateOnly`:
-- `WeekdayName` - Gets the name of the day of the week.
+- `WeekdayName` - Gets the English name of the day of the week ("Monday"), not translated.
 
 Extensions on `TimeOnly`:
-- `HHMM` - Gets the time in 24-hour format (HH:mm).
+- `HHMM` - Gets the time in 24-hour format (HH:mm) in every culture.
 
 Extensions on `double`:
 - `TimeOnly` - Converts minutes to `TimeOnly`.
@@ -184,8 +194,16 @@ of retrieving data from **Microsoft Access**.
 However, the methods can be used for any data
 source that supports `IDataRecord`.
 
+A default value is used for a missing column and for a null value. Without one, a missing column or a null value throws
+`InvalidOperationException`, as does a value of a type that can't be converted.
+
+> **Note:** these extensions are on `IDataRecord`. On a variable of a concrete reader type (`DbDataReader`, `SqlDataReader`,
+> `DataTableReader`), the BCL's own extensions in `System.Data` (`GetString(string)`, `GetDouble(string)`, `GetByte(string)`,
+> `IsDBNull(string)`) are chosen instead, and `IDataRecord`'s own `GetString(int)`, `GetDouble(int)` and `GetByte(int)` are
+> chosen when no default value is given. Read through an `IDataRecord` variable to get these.
+
 Extensions on `IDataRecord`:
-- `GetString(columnIndex/columnName, defaultValue?)` - Gets string value.
+- `GetString(columnIndex/columnName, defaultValue?)` - Gets string value; an empty string, or the default, for a null value.
 - `GetStringResource(columnName, ResourceManager, defaultValue)` - Gets localized string from resource.
 - `GetByte(columnIndex/columnName, maxValue)` - Gets byte value with optional max clamping.
 - `GetInt(columnIndex/columnName, defaultValue?)` - Gets integer value.
@@ -197,9 +215,9 @@ Extensions on `IDataRecord`:
 - `GetTimeAsDouble(columnIndex/columnName, defaultValue?)` - Gets time as fractional days.
 - `GetBool(columnIndex/columnName, defaultValue?)` - Gets boolean value (handles various numeric types).
 - `IsDBNull(columnName)` - Checks if column value is DBNull.
-- `GetColumnIndexes(string[])` - Gets dictionary mapping column names to ordinals.
+- `GetColumnIndexes(string[])` - Gets a read-only dictionary mapping column names to ordinals.
 
-Also includes a `Columns` helper class for efficient column ordinal lookups.
+Also includes a sealed `Columns` helper class for efficient column ordinal lookups.
 
 Extensions on `DataRow`:
 - `GetRowFields()` - Returns all field values in the row as a string array.
@@ -250,8 +268,8 @@ Corrections of typed or pasted input, for applying before saving, so users only 
     "Stockholm Södra"); `UpperCase`; `LowerCase`; and the name styles `Place`, `GivenName`, `FamilyName` and `Organisation`,
     made for names in 17 European countries: connecting words ("Frankfurt am Main"), name particles ("von Sydow"), elisions
     ("Cortina d'Ampezzo"), Dutch "IJ", "McDonald", legal forms ("GmbH", "Sp. z o.o.").
-  - `TextCleanup` (flags that combine): `Trimmed`, `OrdinaryText` (see `AsOrdinaryText`, includes `Trimmed`), `NoSpaces`,
-    `NoHyphens`, `NullIfEmpty`.
+  - `TextCleanup` (flags that combine): `Trimmed`, `PlainCharacters` (see `AsOrdinaryText`), `OrdinaryText`
+    (`PlainCharacters | Trimmed`), `NoSpaces`, `NoHyphens`, `NullIfEmpty`.
 - `TextCasings` - The `TextCase` per kind of text, for declaring the rules of a language or country in one place:
   `new TextCasings { ["StationSignature"] = TextCase.UpperCase }.Of("StationSignature")`; an undeclared kind is `AsTyped`
   (or the given default).
@@ -271,8 +289,10 @@ Corrections of typed or pasted input, for applying before saving, so users only 
 Namespace `Tellurian.Utilities.Web`
 
 Extensions on `string?` for generating HTML markup:
-- `Span(string cssClass = "")` - Wraps content in a `<span>` element with optional CSS class.
-- `Div(string cssClass = "")` - Wraps content in a `<div>` element with optional CSS class.
+- `Span(string cssClass = "")` - Wraps the text in a `<span>` element with optional CSS class; empty text gives an empty string.
+- `Div(string cssClass = "")` - Wraps the text in a `<div>` element with optional CSS class; empty text gives an empty string.
+
+The text and the CSS class are HTML-encoded, so the text is shown as written.
 
 ## Http Extensions
 Namespace `Tellurian.Utilities.Web`
@@ -288,6 +308,12 @@ Extensions on `HttpResponseMessage` and `Task<HttpResponseMessage>`, giving a [`
   `FailureWithException`, and the `HttpClient` timeout `TimedOut`. A cancellation through the token is thrown, not returned.
 ```csharp
 var result = await client.GetAsync($"modules/{id}", cancellationToken).ToResultAsync<Module>(cancellationToken: cancellationToken);
+```
+- `ToResultAsync<T>(JsonTypeInfo<T> jsonTypeInfo, CancellationToken cancellationToken = default)` - The same, with source-generated
+  JSON metadata from a `JsonSerializerContext`: safe under trimming and Native AOT (Blazor WebAssembly), where the overload
+  with `JsonSerializerOptions` warns that it needs reflection.
+```csharp
+var result = await client.GetAsync($"modules/{id}", cancellationToken).ToResultAsync(AppJsonContext.Default.Module, cancellationToken);
 ```
 
 
